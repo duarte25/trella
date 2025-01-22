@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import Usuario, { IUsuario } from "../models/Usuario";
 import jwt from "jsonwebtoken";
+import messages from "../utils/mensagens";
 
 export default class AuthController {
     static async logar(req: Request, res: Response): Promise<Response> {
@@ -26,14 +27,22 @@ export default class AuthController {
             }
         );
 
-        // Retornar a resposta com o token e os dados do usuário
-        return res.status(200).json({
+        const data = {
             token,
             user: {
                 id: userExist._id,
                 nome: userExist.nome,
                 email: userExist.email
-            },
+            }
+        }
+
+        // Retornando o usuário sem a senha
+        return res.status(201).json({
+            data: data,
+            error: false,
+            code: 201,
+            message: messages.httpCodes[200],
+            errors: []
         });
     }
 }
