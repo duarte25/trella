@@ -1,0 +1,26 @@
+version: "3.8"
+
+services:
+  auth-mongo:
+    restart: unless-stopped
+    container_name: auth-mongo
+    image: mongo:6.0.7
+    ports:
+      - ${DB_EXPOSE_PORT}:27017
+    volumes:
+      - "${DB_VOLUME:-vol-db}:/data/db"
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=${DB_USERNAME}
+      - MONGO_INITDB_ROOT_PASSWORD=${DB_PASSWORD}
+      - MONGO_INITDB_DATABASE=${DB_DATABASE}
+      - TZ=America/Porto_Velho
+      - LANG=${LANG}
+    networks:
+      - fslab-network-auth
+
+volumes:
+  vol-db:
+
+networks:
+  fslab-network-auth:
+    driver: bridge
