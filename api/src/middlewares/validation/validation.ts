@@ -1,16 +1,21 @@
 import mongoose, { Model, Document, mongo } from "mongoose";
 import messages from "../../utils/mensagens.js";
 import { isCPF, isCNPJ, isCNH } from "validation-br";
-import { IUsuario } from "../../models/Usuario.js";
 
-interface UniqueOptions {
-    model?: mongoose.Model<IUsuario>;
+interface UniqueOptions<T = any> {
+    model?: mongoose.Model<T>;
     query?: Record<string, any>;
     ignoreSelf?: boolean;
     message?: string;
     validateID?: boolean;
     valorMongo?: boolean | string;
-    userId?: string; 
+    userId?: string;
+}
+
+interface ValidationContext {
+    path: string;
+    parent: { _id?: any };
+    setValue: (value: any) => void;
 }
 
 // Acessar objeto com caminho "a.b.c"
@@ -210,26 +215,35 @@ export class ValidationFuncs {
         return true;
     };
 
-    static toMongooseObj = (opcoes: UniqueOptions) => async (value: string, val: any) =>
-        async (value: any, val: { path: any; parent: { _id: any; }; }) => {
+    static toMongooseObj = <T = any>(opcoes: UniqueOptions<T>) =>
+        async (value: string, val: ValidationContext): Promise<true | string> => {
             const path = val.path;
 
-            if (!opcoes.model) throw new Error("A função de validação única deve receber o Model para pesquisa!");
+            // Verifica se o model foi passado corretamente
+            if (!opcoes.model) {
+                throw new Error("A função de validação deve receber o Model para pesquisa!");
+            }
 
-
+            // Define a query de pesquisa
             let query = opcoes.query || { [path]: value };
 
-            // Ignorar o documento atual, se necessário
+            // Se a opção `ignoreSelf` for verdadeira, ignoramos o próprio documento
             if (opcoes.ignoreSelf && val.parent?._id) {
                 query._id = { $ne: val.parent._id };
             }
 
-            let resultado = await opcoes.model.findOne(query);
+            // Realiza a consulta no banco de dados
+            const resultado = await opcoes.model.findOne(query);
 
-            if (resultado) {
-                return opcoes.message;
+            // Caso o resultado não seja encontrado, retornamos uma mensagem de erro
+            if (!resultado) {
+                return opcoes.message || `O valor '${value}' não foi encontrado para o campo '${path}'.`;
             }
 
+            // Se o resultado for encontrado, definimos o valor no contexto de validação
+            val.setValue(resultado);
+
+            // Retorna verdadeiro indicando que a validação foi bem-sucedida
             return true;
         };
 
@@ -294,27 +308,41 @@ export class ValidationFuncs {
         return true;
     };
 
-    static unique = (opcoes: UniqueOptions) => async (value: string, val: any) => {
-        // Verifica se o modelo foi passado corretamente, caso contrário lança erro
-        if (!opcoes.model) throw new Error("A função de validação unique deve receber o Model que irá pesquisar!");
+    static unique = <T = any>(opcoes: UniqueOptions<T>) =>
+        async (value: any, val: { path: string; parent?: { _id?: any } }): Promise<boolean | string> => {
+            const path = val.path;
+    
+            if (!opcoes.model) {
+                throw new Error("A função de validação única deve receber o Model para pesquisa!");
+            }
+    
+            // Configura a query com base no caminho e no valor
+            let query = opcoes.query || { [path]: value };
+    
+            // Ignorar o próprio documento com base no _id ou userId
+            if (opcoes.ignoreSelf) {
+                const ignoreId = val.parent?._id || opcoes.userId; // Use o _id do pai ou o userId fornecido
+                if (ignoreId) {
+                    query._id = { $ne: ignoreId };
+                }
+            }
+    
+            // Realiza a consulta no banco de dados
+            const resultado = await opcoes.model.findOne(query);
+    
+            // Se encontrou um resultado, retorna a mensagem de erro
+            if (resultado) {
+                return opcoes.message || `O valor para ${path} já está em uso.`;
+            }
+    
+            // Se não encontrou, retorna verdadeiro (validação passa)
+            return true;
+        };
+    
 
-        // Se não houver uma consulta fornecida, usa o valor do campo a ser validado
-        let query = opcoes.query || { [val.path]: value };
 
-        // Executa a consulta no banco de dados para verificar se o valor já existe
-        let resultado = await opcoes.model.findOne(query);
-
-        // Se um usuário com o valor já existir, retorna uma mensagem de erro
-        if (resultado) {
-            return opcoes.message || messages.validationGeneric.fieldIsRepeated(val.path).message;
-        }
-
-        // Caso contrário, o valor é único
-        return true;
-    };
-
-    static mongooseID = (opcoes: Omit<UniqueOptions, 'valorMongo'> = {}) => {
-        return async (value: any, val: { path: string }) => {
+    static mongooseID = <T = any>(opcoes: Omit<UniqueOptions<T>, 'valorMongo'> = {}) => {
+        return async (value: any, val: { path: string }): Promise<boolean | string> => {
             if (!mongoose.Types.ObjectId.isValid(value)) {
                 return opcoes.message || messages.validationGeneric.invalid(val.path).message;
             }

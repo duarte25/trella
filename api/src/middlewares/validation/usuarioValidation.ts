@@ -7,7 +7,7 @@ export default class UsuarioValidation {
 
     static async criarUsuarioValidate(req: Request, res: Response, next: NextFunction): Promise<Response | void> {
         const val = new Validator(req.body);
-        
+
         // Validações
         await val.validate("nome", v.required(), v.trim(), v.validateLength({ max: 50 }));
         await val.validate("email", v.required(), v.email(), v.unique({ model: Usuario, query: { email: req.body.email } }));
@@ -30,10 +30,10 @@ export default class UsuarioValidation {
             v.mongooseID(),
             v.toMongooseObj({ model: Usuario, query: { _id: req.params.id } })
         );
-
+        
         // Erro 404 quando id não existe
         if (val.anyErrors()) return sendError(res, 404, val.getErrors());
-
+  
         const usuario = val.getValue("id");
 
         val = new Validator(req.body);
@@ -46,19 +46,19 @@ export default class UsuarioValidation {
 
         // Verificação do e-mail no banco de dados (ignora o e-mail se for o do próprio usuário)
         await val.validate("email", v.optional(), v.email(), v.unique({
-            model: Usuario, 
-            query: { email: req.body.email }, 
+            model: Usuario,
+            query: { email: req.body.email },
             ignoreSelf: true,  // Ignorar o próprio usuário
             userId: userId    // Passar o ID do usuário sendo alterado
         }));
 
         // Validação do CPF (opcional, como você já tinha)
         await val.validate("cpf", v.optional(), v.CPF(), v.unique({
-            model: Usuario, 
-            query: { cpf: req.body.cpf }, 
+            model: Usuario,
+            query: { cpf: req.body.cpf },
             ignoreSelf: true,  // Ignorar o próprio usuário
             userId: userId    // Passar o ID do usuário sendo alterado
-        })); 
+        }));
 
         // Verificar se existem erros
         if (val.anyErrors()) {
