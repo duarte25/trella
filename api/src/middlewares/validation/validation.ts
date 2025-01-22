@@ -1,6 +1,17 @@
-import mongoose, { Document } from "mongoose";
+import mongoose, { Model, Document, mongo } from "mongoose";
 import messages from "../../utils/mensagens.js";
 import { isCPF, isCNPJ, isCNH } from "validation-br";
+import { IUsuario } from "../../models/Usuario.js";
+
+interface UniqueOptions {
+    model?: mongoose.Model<IUsuario>;
+    query?: Record<string, any>;
+    ignoreSelf?: boolean;
+    message?: string;
+    validateID?: boolean;
+    valorMongo?: boolean | string;
+    userId?: string; 
+}
 
 // Acessar objeto com caminho "a.b.c"
 const getValueByPath = (obj: any, path: string): any => {
@@ -69,19 +80,6 @@ interface ValidationOptions {
     message?: string;
 }
 
-/**
- * A classe Validator é usada para validar os campos de um objeto. 
- * Exemplo de uso:
- * 
- * let val = new Validator(req.body);
- * await val.validate("nome", v.required(), v.trim(), v.length({ min: 4, max: 200 }));
- * await val.validate("cpf", v.required(), v.CPF(), v.unique({ model: Motorista, query: { cpf: req.body.cpf } }));
- * await val.validate("data_admissao", v.required(), v.toUTCDate(), v.max({ max: new Date() }));
- * 
- * if (val.anyErrors()) return sendError(res, 422, val.getErrors());
- * 
- * req.body = val.getSanitizedBody();
- */
 export class Validator {
     validations: { [key: string]: ValidationResult };
     body: any;
@@ -144,6 +142,16 @@ export class ValidationFuncs {
     // Funções de sanitização
     // ---------------------------------------------------
 
+    static optional = (opcoes: Record<string, any> = {}) =>
+        async (value: any): Promise<boolean> => {
+            if (value === undefined) {
+                return false;
+            } else {
+                return true;
+            }
+        };
+
+
     static trim = (opcoes: { allowEmpty?: boolean, message?: string } = { allowEmpty: false }): any => async (value: any, val: ValidationResult): Promise<boolean | string> => {
         if (typeof value?.trim !== "function") return opcoes.message || messages.validationGeneric.invalid(val.path).message;
 
@@ -202,21 +210,28 @@ export class ValidationFuncs {
         return true;
     };
 
-    static toMongooseObj = (opcoes: { model: mongoose.Model<any>; query?: object; message?: string }):
-        any => async (value: any, val: ValidationResult): Promise<boolean | string> => {
+    static toMongooseObj = (opcoes: UniqueOptions) => async (value: string, val: any) =>
+        async (value: any, val: { path: any; parent: { _id: any; }; }) => {
             const path = val.path;
 
-            if (!opcoes.model) throw new Error("A função de validação existe deve receber o Model que irá pesquisar!");
+            if (!opcoes.model) throw new Error("A função de validação única deve receber o Model para pesquisa!");
 
-            let resultado = await opcoes.model.findOne(opcoes.query || { [path]: value });
-            if (!resultado) {
-                return opcoes.message || messages.validationGeneric.notFound(path).message;
+
+            let query = opcoes.query || { [path]: value };
+
+            // Ignorar o documento atual, se necessário
+            if (opcoes.ignoreSelf && val.parent?._id) {
+                query._id = { $ne: val.parent._id };
             }
 
-            val.setValue(resultado);
+            let resultado = await opcoes.model.findOne(query);
+
+            if (resultado) {
+                return opcoes.message;
+            }
+
             return true;
         };
-
 
     static toDateTime = (opcoes: { defaultTimezoneLocal?: boolean, message?: string } = { defaultTimezoneLocal: true }): any => async (value: any, val: ValidationResult): Promise<boolean | string> => {
         let dateString;
@@ -268,32 +283,44 @@ export class ValidationFuncs {
 
     static validateLength = (opcoes: { min?: number, max?: number, message?: string } = { min: 0, max: 255 }): any => async (value: any, val: ValidationResult): Promise<boolean | string> => {
         if (value === undefined) return true;
-    
+
         let valueLength = value?.length;
-    
+
         // Check if the length is within the min/max range
         if ((opcoes.min && valueLength < opcoes.min) || (opcoes.max && valueLength > opcoes.max)) {
-            return opcoes.message || messages.validationGeneric.invalidInputFormatForField?.(val.path).message || "Invalid length"; 
+            return opcoes.message || messages.validationGeneric.invalidInputFormatForField?.(val.path).message || "Invalid length";
         }
-    
+
         return true;
     };
-    
-    static unique = (opcoes: { model: mongoose.Model<any>, query: object, message?: string }): any => async (value: any, val: ValidationResult): Promise<boolean | string> => {
-        const path = val.path;
-    
-        if (opcoes.model === undefined || opcoes.query === undefined) throw new Error("The 'model' and 'query' parameters are required for the unique function!");
-    
-        let count = await opcoes.model.countDocuments(opcoes.query);
-    
-        if (count > 0) {
-            // Use an existing message or provide an inline message if not defined in messages
-            return opcoes.message || messages.validationGeneric.invalidInputFormatForField?.(path).message || `The value for the field ${path} already exists.`;
+
+    static unique = (opcoes: UniqueOptions) => async (value: string, val: any) => {
+        // Verifica se o modelo foi passado corretamente, caso contrário lança erro
+        if (!opcoes.model) throw new Error("A função de validação unique deve receber o Model que irá pesquisar!");
+
+        // Se não houver uma consulta fornecida, usa o valor do campo a ser validado
+        let query = opcoes.query || { [val.path]: value };
+
+        // Executa a consulta no banco de dados para verificar se o valor já existe
+        let resultado = await opcoes.model.findOne(query);
+
+        // Se um usuário com o valor já existir, retorna uma mensagem de erro
+        if (resultado) {
+            return opcoes.message || messages.validationGeneric.fieldIsRepeated(val.path).message;
         }
-    
+
+        // Caso contrário, o valor é único
         return true;
     };
-    
+
+    static mongooseID = (opcoes: Omit<UniqueOptions, 'valorMongo'> = {}) => {
+        return async (value: any, val: { path: string }) => {
+            if (!mongoose.Types.ObjectId.isValid(value)) {
+                return opcoes.message || messages.validationGeneric.invalid(val.path).message;
+            }
+            return true;
+        };
+    };
 
     static CPF = (opcoes: { message?: string } = {}): any => async (value: any, val: ValidationResult): Promise<boolean | string> => {
         if (!isCPF(value)) {
@@ -317,6 +344,32 @@ export class ValidationFuncs {
         }
 
         return true;
+    };
+
+    static email(opcoes: { message?: string } = {}) {
+        return ValidationFuncs.regex({
+            regex: /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/,
+            message: opcoes.message || "O formato do email é inválido."
+        });
+    }
+
+    static passwordComplexity(opcoes: { message?: string } = {}) {
+        return ValidationFuncs.regex({
+            regex: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/,
+            message: opcoes.message || "A senha deve ter pelo menos 8 caracteres, uma letra maiúscula, uma minúscula, um número e um caractere especial."
+        });
+    }
+
+    static regex = (opcoes: { regex: RegExp; message?: string } = { regex: /./ }) => async (value: string, val: { path: string }) => {
+        if (opcoes.regex === undefined) {
+            throw new Error("A função de validação regex deve receber um objeto com a propriedade regex");
+        }
+
+        if (!opcoes.regex.test(value)) {
+            return opcoes.message || `Formato inválido para o campo ${val.path}`;
+        } else {
+            return true;
+        }
     };
 
     // ---------------------------------------------------

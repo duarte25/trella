@@ -9,7 +9,7 @@ export default class UsuarioValidation {
         const val = new Validator(req.body);
         
         // Validações
-        await val.validate("nome", v.required(), v.trim(), v.length({ max: 50 }));
+        await val.validate("nome", v.required(), v.trim(), v.validateLength({ max: 50 }));
         await val.validate("email", v.required(), v.email(), v.unique({ model: Usuario, query: { email: req.body.email } }));
         await val.validate("cpf", v.required(), v.CPF(), v.unique({ model: Usuario, query: { cpf: req.body.cpf } }));
         await val.validate("senha", v.required(), v.passwordComplexity());
@@ -39,7 +39,7 @@ export default class UsuarioValidation {
         val = new Validator(req.body);
 
         // Validações gerais
-        await val.validate("nome", v.optional(), v.trim(), v.length({ max: 50 }));
+        await val.validate("nome", v.optional(), v.trim(), v.validateLength({ max: 50 }));
         await val.validate("senha", v.optional(), v.passwordComplexity());
 
         const userId = req.params.id; // ID do usuário sendo alterado

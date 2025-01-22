@@ -3,13 +3,13 @@ import paginate from "mongoose-paginate-v2";
 
 // Definindo a interface para o tipo de Documento do usuário
 export interface IUsuario extends Document {
-    _id: ObjectId; // Use ObjectId em vez de string, caso o MongoDB esteja usando ObjectId
-    nome: string;
-    cpf: string;
-    email: string;
-    senha: string;
-    createdAt: Date;
-    updatedAt: Date;
+  _id: ObjectId; // Use ObjectId em vez de string, caso o MongoDB esteja usando ObjectId
+  nome: string;
+  cpf: string;
+  email: string;
+  senha: string;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 // Definindo o esquema para o modelo de usuário
@@ -50,7 +50,7 @@ usuarioSchema.index({ nome: "text" }, { default_language: "pt" });
 // Configurações para permitir paginação
 usuarioSchema.plugin(paginate);
 
-// Criando o modelo de usuário com o tipo IUsuario
+// Criando o modelo de usuário com o tipo IUsuario e PaginateModel
 const Usuario = mongoose.model<IUsuario, PaginateModel<IUsuario>>("Usuario", usuarioSchema);
 
 export default Usuario;
