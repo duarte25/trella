@@ -44,6 +44,7 @@ export default function LoginPage() {
         if (response.error) {
             handleErrorMessage<typeof data>({ errors: response.errors, form: form });
         } else {
+            // Aqui estamos definindo que o token expirará em 1 hora (60 minutos)
             await createSession(response.data.token);
 
             setUser(response.data.user);

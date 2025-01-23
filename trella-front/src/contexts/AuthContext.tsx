@@ -2,13 +2,20 @@
 
 import { getCookie } from "@/actions/handleCookie";
 import { Usuario } from "@/api/models/Usuario";
-import { fetchApi } from "@/api/services/fetchApi";
 import React, { createContext, useEffect, useState } from "react";
 
+// Função para verificar se o token expirou
+const isTokenExpired = (token: string) => {
+  try {
+    const decodedToken = JSON.parse(atob(token.split('.')[1]));
+    const currentTime = Date.now() / 1000; // Tempo atual em segundos
+    return decodedToken.exp < currentTime;
+  } catch (error) {
+    return true; // Se falhar na decodificação, consideramos o token expirado
+  }
+};
+
 type Props = {
-  // user: Usuario | null;
-  // token: string | undefined;
-  // isAuthenticated: boolean;
   children: React.ReactNode;
 };
 
@@ -26,7 +33,7 @@ export const AuthContext = createContext<ContextType | null>(null);
 
 export function AuthProvider({ children }: Props) {
   const [tokenState, setTokenState] = useState<string | undefined>(undefined);
-  const [userState, setUserState] = useState<Usuario | null>({} as Usuario);
+  const [userState, setUserState] = useState<Usuario | null>(null);
   const [isAuthenticatedState, setIsAuthenticated] = useState<boolean>(false);
 
   async function clearStates(): Promise<void> {
@@ -35,29 +42,40 @@ export function AuthProvider({ children }: Props) {
     setUserState(null);
   }
 
-  async function getUser() {
-    if (tokenState) {
-      const response = await fetchApi<null, Usuario>({ route: "/session", method: "GET", token: tokenState });
-
-      if (response.error) {
-        console.log("Erro ao tentar buscar os dados do usuário logado!");
-      } else {
-        setUserState(response.data);
-        setIsAuthenticated(true);
-      }
+  // Função para extrair as informações do usuário do token
+  function extractUserFromToken(token: string) {
+    try {
+      const decodedToken = JSON.parse(atob(token.split('.')[1])); // Decodifica o token JWT
+      return decodedToken.user || null; // Retorna o usuário, se existir
+    } catch (error) {
+      return null; // Se não conseguir decodificar, retorna null
     }
   }
 
+  // Função para obter o token e verificar a validade
   async function getToken() {
     const token = await getCookie("accessToken");
-    console.log("Rodou", token?.value);
+    if (token?.value) {
+      setTokenState(token.value);
 
-    setTokenState(token?.value);
+      // Verifica se o token está expirado
+      if (isTokenExpired(token.value)) {
+        clearStates(); // Se o token expirou, limpa o estado e desloga o usuário
+        return;
+      }
+
+      // Se o token é válido, extrai os dados do usuário do token
+      const user = extractUserFromToken(token.value);
+      if (user) {
+        setUserState(user);
+        setIsAuthenticated(true);
+      } else {
+        clearStates(); // Se não for possível extrair o usuário, limpa o estado
+      }
+    } else {
+      clearStates(); // Se não houver token, limpa o estado
+    }
   }
-
-  useEffect(() => {
-    getUser();
-  }, [tokenState]);
 
   useEffect(() => {
     getToken();
