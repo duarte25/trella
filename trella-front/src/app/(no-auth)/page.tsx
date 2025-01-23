@@ -3,30 +3,20 @@
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { handleErrorMessage } from "@/errors/handleErrorMessage";
-import { LoginResponse } from "@/api/responses/LoginResponse";
-import ButtonLoading from "@/components/ButtonLoading";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { AuthContext } from "@/contexts/AuthContext";
-import { AuthSchemas } from "@/schemas/AuthSchemas";
-import { fetchApi } from "@/api/services/fetchApi";
 import { createSession } from "@/actions/session";
-import { Input } from "@/components/ui/input";
+import { LoginResponse } from "@/api/responses/LoginResponse";
+import { AuthSchemas } from "@/schemas/AuthSchemas";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
+import { fetchApi } from "@/api/services/fetchApi";
 import { useForm } from "react-hook-form";
-import { useContext } from "react";
+import { Input } from "@/components/ui/input";
+import ButtonLoading from "@/components/ButtonLoading";
+import Image from "next/image";
 import Link from "next/link";
 import z from "zod";
-import Image from "next/image";
 
 export default function LoginPage() {
-    const context = useContext(AuthContext);
-
-    if (!context) {
-        throw new Error("AuthContext must be used within an AuthProvider");
-    }
-
-    const { setUser, setIsAuthenticated, setToken } = context;
-
     const router = useRouter();
 
     const schema = AuthSchemas.login;
@@ -45,12 +35,7 @@ export default function LoginPage() {
         if (response.error) {
             handleErrorMessage<typeof data>({ errors: response.errors, form: form });
         } else {
-            // Aqui estamos definindo que o token expirará em 1 hora (60 minutos)
             await createSession(response.data.token);
-
-            setUser(response.data.user);
-            setIsAuthenticated(true);
-            setToken(response.data.token);
 
             router.replace("/");
         }
