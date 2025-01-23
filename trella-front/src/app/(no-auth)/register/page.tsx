@@ -44,7 +44,7 @@ export default function RegisterPage() {
         if (response.error) {
             handleErrorMessage<typeof data>({ errors: response.errors, form: form });
         } else {
-            router.replace("/login");
+            router.replace("/");
         }
     }
 
@@ -132,7 +132,7 @@ export default function RegisterPage() {
 
                                         <div>
                                             <span className="text-sm">
-                                                <Link className="underline" href="/login">
+                                                <Link className="underline" href="/">
                                                     Já tem uma conta?
                                                 </Link>
                                             </span>
