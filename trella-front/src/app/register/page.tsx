@@ -1,58 +1,50 @@
 "use client";
 
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { handleErrorMessage } from "@/errors/handleErrorMessage";
-import { LoginResponse } from "@/api/responses/LoginResponse";
 import ButtonLoading from "@/components/ButtonLoading";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { AuthContext } from "@/contexts/AuthContext";
 import { AuthSchemas } from "@/schemas/AuthSchemas";
 import { fetchApi } from "@/api/services/fetchApi";
-import { createSession } from "@/actions/session";
+import { Usuario } from "@/api/models/Usuario";
 import { Input } from "@/components/ui/input";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { useContext } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import z from "zod";
-import Image from "next/image";
 
-export default function LoginPage() {
+export default function RegisterPage() {
     const context = useContext(AuthContext);
 
     if (!context) {
         throw new Error("AuthContext must be used within an AuthProvider");
     }
 
-    const { setUser, setIsAuthenticated, setToken } = context;
-
     const router = useRouter();
 
-    const schema = AuthSchemas.login;
+    const schema = AuthSchemas.register;
 
     const form = useForm<z.infer<typeof schema>>({
         resolver: zodResolver(schema),
         defaultValues: {
+            nome: "",
+            cpf: "",
             email: "",
             senha: "",
         },
     });
 
-    async function login(data: z.infer<typeof schema>) {
-        const response = await fetchApi<typeof data, LoginResponse>({ route: "/auth/login", method: "POST", data: data });
+    async function register(data: z.infer<typeof schema>) {
+        const response = await fetchApi<typeof data, Usuario>({ route: "/auth/register", method: "POST", data: data });
 
         if (response.error) {
             handleErrorMessage<typeof data>({ errors: response.errors, form: form });
         } else {
-            // Aqui estamos definindo que o token expirará em 1 hora (60 minutos)
-            await createSession(response.data.token);
-
-            setUser(response.data.user);
-            setIsAuthenticated(true);
-            setToken(response.data.token);
-
-            router.replace("/");
+            router.replace("/login");
         }
     }
 
@@ -60,11 +52,11 @@ export default function LoginPage() {
         <div className="h-screen w-screen">
             <main className="flex h-full w-full bg-gradient-to-r  from-gray-400 via-blue-600 to-blue-900 lg:flex-row lg:bg-white lg:from-white lg:to-white">
                 <section className="hidden w-full items-center justify-center bg-gradient-to-r from-gray-400 via-blue-600 to-blue-900 lg:flex lg:max-w-[70vw]">
-                    <div className="flex flex-col items-center gap-20">
+                    <div className="flex flex-col items-center gap-10">
                         <CardTitle className="text-slate-200 text-5xl">
                             Trella.com
                         </CardTitle>
-                        <Image src="/login_illustration.svg" alt="teste" width={400} height={400} />
+                        <Image src="/register_illustration.svg" alt="teste" width={400} height={400} />
                     </div>
                 </section>
 
@@ -74,17 +66,42 @@ export default function LoginPage() {
                     </div>
                     <Card className="m-8 w-full max-w-[400px]">
                         <Form {...form}>
-                            <form onSubmit={form.handleSubmit(login)}>
+                            <form onSubmit={form.handleSubmit(register)}>
                                 <CardHeader>
                                     <CardTitle className="flex items-center gap-2">
-                                        Login
+                                        Cadastre-se
                                     </CardTitle>
-                                    <CardDescription>
-                                        <b>Bem-vindo! Digite seus dados para continuar.</b>
-                                    </CardDescription>
                                 </CardHeader>
                                 <CardContent>
                                     <fieldset className="space-y-4">
+                                        <FormField
+                                            name="nome"
+                                            control={form.control}
+                                            render={({ field }) => (
+                                                <FormItem>
+                                                    <FormLabel htmlFor="nome">Nome</FormLabel>
+                                                    <FormControl>
+                                                        <Input type="nome" id="npme" {...field} />
+                                                    </FormControl>
+                                                    <FormMessage />
+                                                </FormItem>
+                                            )}
+                                        />
+
+                                        <FormField
+                                            name="cpf"
+                                            control={form.control}
+                                            render={({ field }) => (
+                                                <FormItem>
+                                                    <FormLabel htmlFor="cpf">CPF</FormLabel>
+                                                    <FormControl>
+                                                        <Input type="cpf" id="cpf" {...field} />
+                                                    </FormControl>
+                                                    <FormMessage />
+                                                </FormItem>
+                                            )}
+                                        />
+
                                         <FormField
                                             name="email"
                                             control={form.control}
@@ -115,9 +132,8 @@ export default function LoginPage() {
 
                                         <div>
                                             <span className="text-sm">
-                                                Não tem uma conta?{" "}
-                                                <Link className="underline" href="/register">
-                                                    Cadastre-se
+                                                <Link className="underline" href="/login">
+                                                    Já tem uma conta?
                                                 </Link>
                                             </span>
                                         </div>
@@ -125,7 +141,7 @@ export default function LoginPage() {
                                 </CardContent>
                                 <CardFooter className="w-full">
                                     <ButtonLoading type="submit" isLoading={form.formState.isSubmitting} className="w-full">
-                                        Entrar
+                                        Registrar
                                     </ButtonLoading>
                                 </CardFooter>
                             </form>
