@@ -1,8 +1,15 @@
 import { Request, Response } from "express";
 import { paginateOptions } from "./common";
 import Board from "../models/Board";
-import { sendResponse } from "../utils/mensagens";
+import messages, { sendResponse } from "../utils/mensagens";
 import { jwtDecode } from "jwt-decode";
+import { ObjectId } from "mongoose";
+
+interface ICreateBoardRequest {
+    nome: string;
+    usuarios: ObjectId[];
+    responsavel: ObjectId;
+}
 
 interface QueryParams {
     pagina?: string;
@@ -64,4 +71,34 @@ export default class BoardController {
             return sendResponse(res, 500, { error: true, message: err.message });
         }
     }
+
+    static async CriarBoard(req: Request, res: Response): Promise<Response> {
+        try {
+            const dados: ICreateBoardRequest = { ...req.body };
+
+            const board = new Board(dados);
+
+            const saveBoard = await board.save();
+
+            // Retornando o usuário sem a senha
+            return res.status(201).json({
+                data: saveBoard,
+                error: false,
+                code: 201,
+                message: messages.httpCodes[201],
+                errors: []
+            });
+
+        } catch (err: any) {
+            return res.status(500).json({
+                data: [],
+                error: true,
+                code: 500,
+                message: messages.httpCodes[500],
+                errors: err.message
+            });
+        }
+    }
+
+    
 }
