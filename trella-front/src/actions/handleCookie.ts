@@ -7,3 +7,9 @@ export async function getCookie(cookie: string) {
 
   return cookieStore.get(cookie);
 }
+
+// Deleta um cookie pelo nome
+export async function deleteCookie(cookieName: string) {
+  const cookieStore = await cookies();
+  cookieStore.delete(cookieName); // Chama delete diretamente
+}
