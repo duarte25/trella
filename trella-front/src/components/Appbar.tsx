@@ -1,24 +1,23 @@
 "use client";
 
-import { Sidebar, SidebarContent, SidebarFooter, SidebarGroup, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem, useSidebar, }
-  from "@/components/ui/sidebar";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger }
-  from "@/components/ui/dropdown-menu";
+import { Sidebar, SidebarContent, SidebarFooter, SidebarGroup, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem, useSidebar } from "@/components/ui/sidebar";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { ChevronsUpDown, LogOut, User, Loader2, Presentation } from "lucide-react";
 import { deleteCookie } from "@/actions/handleCookie";
 import { AuthContext } from "@/contexts/AuthContext";
 import { useContext, useState } from "react";
 import { useRouter } from "next/navigation";
-import Link from "next/link";
+import { fetchApi } from "@/api/services/fetchApi";
+import { BoardResponse } from "@/api/responses/BoardResponse";
+import { useQuery } from "@tanstack/react-query";
 
 export default function Appbar() {
-  const { user } = useContext(AuthContext);
+  const { user, token } = useContext(AuthContext);
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
 
   const handleLogout = async () => {
     setIsLoading(true);
-
     try {
       // Aguarde 2 segundos
       setTimeout(async () => {
@@ -34,6 +33,27 @@ export default function Appbar() {
   };
 
   const { isMobile } = useSidebar();
+
+  const { data, isLoading: isBoardLoading, error } = useQuery<BoardResponse>({
+    queryKey: ["getBoards"],
+    queryFn: async () => {
+      const response = await fetchApi<undefined, BoardResponse>({
+        route: "/boards",
+        method: "GET",
+        token: token,
+        nextOptions: {},
+      });
+
+      if (response.error) {
+        throw new Error(response.message);
+      }
+
+      console.log("Resposta da API:", response.data); // Log para inspecionar a estrutura
+      return response.data; // Retornando o array esperado
+    },
+    retry: 2,
+    refetchOnWindowFocus: false,
+  });
 
   return (
     <>
@@ -54,26 +74,40 @@ export default function Appbar() {
                   </div>
                   <div className="flex flex-col gap-0.5 leading-none">
                     <span className="font-semibold">Trella</span>
-                    <span className="">v1.0.0</span>
+                    <span className="text-sm">v1.0.0</span>
                   </div>
                 </a>
               </SidebarMenuButton>
             </SidebarMenuItem>
           </SidebarMenu>
         </SidebarHeader>
-        <SidebarContent >
+
+        <SidebarContent>
           <SidebarGroup>
             <SidebarMenu>
               <SidebarMenuItem>
                 <SidebarMenuButton asChild>
-                  <Link href="#">
-                    Teste
-                  </Link>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <button className="w-full">Boards</button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent className="w-[--radix-dropdown-menu-trigger-width] min-w-56 rounded-lg">
+                      {
+                        data?.data?.map((item) => (
+                          <DropdownMenuItem key={item._id} onClick={handleLogout}>
+                            <LogOut />
+                            {item.nome}
+                          </DropdownMenuItem>
+                        ))
+                      }
+                    </DropdownMenuContent>
+                  </DropdownMenu>
                 </SidebarMenuButton>
               </SidebarMenuItem>
             </SidebarMenu>
           </SidebarGroup>
         </SidebarContent>
+
         <SidebarFooter>
           <SidebarMenu>
             <SidebarMenuItem>
