@@ -1,7 +1,8 @@
-import { Application, Request, Response } from "express";
 import logRoutes from "../middlewares/LogRoutesMiddleware";
-import auth from "./authRouter";
+import { Application, Request, Response } from "express";
 import usuarios from "./usuarioRouter";
+import boards from "./boardRouter";
+import auth from "./authRouter";
 
 const routes = (app: Application): void => {
     if (process.env.DEBUGLOG === "true") {
@@ -12,7 +13,11 @@ const routes = (app: Application): void => {
         res.status(200).redirect("/docs");
     });
 
-    app.use(auth, usuarios);
+    app.use(
+        auth,
+        usuarios,
+        boards
+    );
 };
 
 export default routes;

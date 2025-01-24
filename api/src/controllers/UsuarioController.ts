@@ -1,7 +1,7 @@
-import { Request, Response } from "express";
-import idValidate from "../utils/idValidate";
-import Usuario, { IUsuario } from "../models/Usuario"; // Ajuste a importação do seu modelo de Usuário
 import messages, { sendResponse } from "../utils/mensagens";
+import Usuario, { IUsuario } from "../models/Usuario";
+import idValidate from "../utils/idValidate";
+import { Request, Response } from "express";
 import { paginateOptions } from "./common";
 import bcrypt from "bcryptjs";
 
