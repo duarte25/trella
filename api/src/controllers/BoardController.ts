@@ -1,7 +1,7 @@
+import messages, { sendResponse } from "../utils/mensagens";
+import Board, { IBoard } from "../models/Board";
 import { Request, Response } from "express";
 import { paginateOptions } from "./common";
-import Board, { IBoard } from "../models/Board";
-import messages, { sendResponse } from "../utils/mensagens";
 import { jwtDecode } from "jwt-decode";
 import { ObjectId } from "mongoose";
 
@@ -15,8 +15,6 @@ interface QueryParams {
     pagina?: string;
     limite?: string;
     nome?: string;
-    // cpf?: string;
-    // email?: string;
 }
 
 export default class BoardController {
@@ -38,81 +36,75 @@ export default class BoardController {
             };
         }
 
-        try {
-            // Pegando o ID do usuário do token JWT
-            const token = req.headers.authorization;
-            if (!token) {
-                return sendResponse(res, 401, { error: "Token de autenticação não fornecido." });
-            }
-
-            const tokenDecoded: any = jwtDecode(token);
-            const userId = tokenDecoded.id;
-
-            filtros.$or = [
-                { "responsavel": userId },
-                { "usuarios": { $in: [userId] } }
-            ];
-
-            const board = await Board.paginate(
-                filtros,
-                {
-                    ...paginateOptions,
-                    page: pagina,
-                    limit: limite,
-                    sort: { _id: -1 },
-                    lean: true,
-                }
-            );
-
-            // Retornando a resposta com os dados paginados
-            return sendResponse(res, 200, { data: board });
-        } catch (err: any) {
-            // Caso ocorra erro, retorna o erro com status 500
-            return sendResponse(res, 500, { error: true, message: err.message });
+        // Pegando o ID do usuário do token JWT
+        const token = req.headers.authorization;
+        if (!token) {
+            return sendResponse(res, 401, { error: "Token de autenticação não fornecido." });
         }
+
+        const tokenDecoded: any = jwtDecode(token);
+        const userId = tokenDecoded.id;
+
+        filtros.$or = [
+            { "responsavel": userId },
+            { "usuarios": { $in: [userId] } }
+        ];
+
+        const board = await Board.paginate(
+            filtros,
+            {
+                ...paginateOptions,
+                page: pagina,
+                limit: limite,
+                sort: { _id: -1 },
+                lean: true,
+            }
+        );
+
+        // Retornando a resposta com os dados paginados
+        return sendResponse(res, 200, { data: board });
+    }
+
+    static async listarBoardID(req: Request, res: Response): Promise<Response> {
+        const board = req.validateResult.board as IBoard;
+
+        return sendResponse(res, 200, { data: board });
     }
 
     static async CriarBoard(req: Request, res: Response): Promise<Response> {
-        try {
-            const dados: ICreateBoardRequest = { ...req.body };
+        const dados: ICreateBoardRequest = { ...req.body };
 
-            const board = new Board(dados);
+        const board = new Board(dados);
 
-            const saveBoard = await board.save();
+        const saveBoard = await board.save();
 
-            // Retornando o usuário sem a senha
-            return res.status(201).json({
-                data: saveBoard,
-                error: false,
-                code: 201,
-                message: messages.httpCodes[201],
-                errors: []
-            });
-
-        } catch (err: any) {
-            return res.status(500).json({
-                data: [],
-                error: true,
-                code: 500,
-                message: messages.httpCodes[500],
-                errors: err.message
-            });
-        }
+        return sendResponse(res, 200, { data: saveBoard });
     }
 
     static async AlterarBoard(req: Request, res: Response): Promise<Response> {
         const board = req.validateResult.board as IBoard;
-        
-        console.log("OLAA")
-            for (let key in req.body) {
-               
-                if (key in board) {
-                    (board as any)[key] = req.body[key]; 
-                }
-            }
-        
-            await Board.findByIdAndUpdate(board._id, board);
 
-            return res.status(200).json({ data: board })
+        for (let key in req.body) {
+
+            if (key in board) {
+                (board as any)[key] = req.body[key];
+            }
+        }
+
+        await Board.findByIdAndUpdate(board._id, board);
+
+        return res.status(200).json({ data: board })
+    }
+
+    static async deletarBoard(req: Request, res: Response): Promise<Response> {
+        const { id } = req.params;
+
+        const findBoard = await Board.findByIdAndDelete(id);
+
+        if (!findBoard) {
+            return res.status(404).json({ data: [], error: true, code: 404, message: messages.httpCodes[404], errors: [messages.validationGeneric.mascCamp("Board")] });
+        }
+
+        return sendResponse(res, 200, {});
     }
 }

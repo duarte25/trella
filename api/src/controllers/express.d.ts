@@ -6,8 +6,8 @@ declare global {
   namespace Express {
     interface Request {
       validateResult: {
-        usuario: IUsuario;
-        board: IBoard;
+        usuario?: IUsuario;
+        board?: IBoard;
       };
     }
   }
