@@ -1,8 +1,7 @@
-import { Request, Response, NextFunction } from "express";
 import { Validator, ValidationFuncs as v } from "./validation";
-import Usuario from "../../models/Usuario";
-import { jwtDecode } from "jwt-decode";
+import { Request, Response, NextFunction } from "express";
 import { sendError } from "../../utils/mensagens";
+import Usuario from "../../models/Usuario";
 
 export default class BoardValidation {
 

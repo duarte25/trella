@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import { paginateOptions } from "./common";
-import Board from "../models/Board";
+import Board, { IBoard } from "../models/Board";
 import messages, { sendResponse } from "../utils/mensagens";
 import { jwtDecode } from "jwt-decode";
 import { ObjectId } from "mongoose";
@@ -100,5 +100,19 @@ export default class BoardController {
         }
     }
 
-    
+    static async AlterarBoard(req: Request, res: Response): Promise<Response> {
+        const board = req.validateResult.board as IBoard;
+        
+        console.log("OLAA")
+            for (let key in req.body) {
+               
+                if (key in board) {
+                    (board as any)[key] = req.body[key]; 
+                }
+            }
+        
+            await Board.findByIdAndUpdate(board._id, board);
+
+            return res.status(200).json({ data: board })
+    }
 }

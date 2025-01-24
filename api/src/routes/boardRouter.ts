@@ -11,7 +11,7 @@ router
     .post("/boards", AuthMiddleware, BoardValidation.CriarBoardValidate ,wrapException(BoardController.CriarBoard))
     .get("/boards", AuthMiddleware, wrapException(BoardController.listarBoard))
     // .get("/boards/:id", wrapException(UsuarioController.listarUsuarioID))
-    // .patch("/boards/:id",  usuarioValidation.alterarUsuarioValidate, wrapException(UsuarioController.alterarUsuario))
+    .patch("/boards/:id", wrapException(BoardController.AlterarBoard))
     // .delete("/boards/:id", wrapException(UsuarioController.deletarUsuario));
 
 export default router;
