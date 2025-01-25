@@ -1,10 +1,10 @@
 export interface Usuario {
     id: string;
     nome: string;
+    cpf: string;
     email: string;
-    iat: number;
-    exp: number;
-    // ativo: boolean;
-   // expiresIn: number;
   }
   
+export interface AuthContextType {
+  token: string;
+}

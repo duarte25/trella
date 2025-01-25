@@ -3,13 +3,14 @@
 import { Sidebar, SidebarContent, SidebarFooter, SidebarGroup, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem, useSidebar } from "@/components/ui/sidebar";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { ChevronsUpDown, LogOut, User, Loader2, Presentation } from "lucide-react";
+import { BoardResponse } from "@/api/responses/BoardResponse";
 import { deleteCookie } from "@/actions/handleCookie";
 import { AuthContext } from "@/contexts/AuthContext";
+import { fetchApi } from "@/api/services/fetchApi";
+import { useQuery } from "@tanstack/react-query";
 import { useContext, useState } from "react";
 import { useRouter } from "next/navigation";
-import { fetchApi } from "@/api/services/fetchApi";
-import { BoardResponse } from "@/api/responses/BoardResponse";
-import { useQuery } from "@tanstack/react-query";
+import Link from "next/link";
 
 export default function Appbar() {
   const { user, token } = useContext(AuthContext);
@@ -34,7 +35,7 @@ export default function Appbar() {
 
   const { isMobile } = useSidebar();
 
-  const { data, isLoading: isBoardLoading, error } = useQuery<BoardResponse>({
+  const { data } = useQuery<BoardResponse>({
     queryKey: ["getBoards"],
     queryFn: async () => {
       const response = await fetchApi<undefined, BoardResponse>({
@@ -48,8 +49,7 @@ export default function Appbar() {
         throw new Error(response.message);
       }
 
-      console.log("Resposta da API:", response.data); // Log para inspecionar a estrutura
-      return response.data; // Retornando o array esperado
+      return response.data; 
     },
     retry: 2,
     refetchOnWindowFocus: false,
@@ -85,25 +85,34 @@ export default function Appbar() {
         <SidebarContent>
           <SidebarGroup>
             <SidebarMenu>
-              <SidebarMenuItem>
-                <SidebarMenuButton asChild>
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <button className="w-full">Boards</button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent className="w-[--radix-dropdown-menu-trigger-width] min-w-56 rounded-lg">
-                      {
-                        data?.data?.map((item) => (
-                          <DropdownMenuItem key={item._id} onClick={handleLogout}>
+
+              <SidebarMenu>
+
+                <SidebarMenuItem>
+                  <SidebarMenuButton asChild>
+                    <Link href={"/criar-board"}>Criar Board</Link>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              </SidebarMenu>
+               
+                <SidebarMenuItem>
+                  <SidebarMenuButton asChild>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <button className="w-full">Boards</button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent>
+                        {data?.data?.map((item) => (
+                          <DropdownMenuItem key={item._id}>
                             <LogOut />
                             {item.nome}
                           </DropdownMenuItem>
-                        ))
-                      }
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
+                        ))}
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+
             </SidebarMenu>
           </SidebarGroup>
         </SidebarContent>
