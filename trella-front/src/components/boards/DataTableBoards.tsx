@@ -25,9 +25,8 @@ export default function DataTableBoards({ dados, onUpdate }: DataTableBoardsProp
     if (!boardToDelete) return;
 
     try {
-      console.log(`Deleting Board ${boardToDelete._id}`);
       const response = await fetchApi({
-        route: `/boards/${boardToDelete._id}`, // Inclua o ID do board na rota
+        route: `/boards/${boardToDelete._id}`,
         method: "DELETE",
         token: token,
       });

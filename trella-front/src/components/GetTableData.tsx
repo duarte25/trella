@@ -1,10 +1,11 @@
+"use client";
+
 import { BoardResponseData } from "@/api/responses/BoardResponse";
 import PaginationComponent from "./PaginationComponent";
 import RefreshTableButton from "./RefreshTableButton";
 import { fetchApi } from "@/api/services/fetchApi";
 import { useQuery } from "@tanstack/react-query";
-import React from "react";
-
+import React, { useState } from "react";
 
 interface GetTableDataProps {
   TableComponent: React.ComponentType<{ dados: BoardResponseData }>;
@@ -22,14 +23,27 @@ export default function GetTableDataComponent({
   route,
   token,
 }: GetTableDataProps) {
+  const [currentPage, setCurrentPage] = useState(1); // Estado interno para a página atual
+
+  // Atualiza os parâmetros com a página atual
+  const updatedQuerys = {
+    ...querys,
+    pagina: currentPage, // Usa o estado interno da página
+  };
+
   const { data, isLoading, isError } = useQuery<BoardResponseData>({
-    queryKey: ["getTableData", querys],
+    queryKey: ["getTableData", updatedQuerys],
     queryFn: async () => {
       if (!token) {
         throw new Error("Token is missing");
       }
+
+      // Adiciona os parâmetros à URL da requisição
+      const queryString = new URLSearchParams(updatedQuerys as Record<string, string>).toString();
+      const apiUrl = `${route}?${queryString}`;
+
       const response = await fetchApi<undefined, BoardResponseData>({
-        route: route,
+        route: apiUrl,
         method: "GET",
         token: token,
         nextOptions: {},
@@ -70,13 +84,11 @@ export default function GetTableDataComponent({
       </div>
       {data.totalPaginas > 1 && (
         <PaginationComponent
-          route={route}
-          currentPage={data.pagina}
+          currentPage={currentPage} // Passa o estado interno da página
           totalPages={data.totalPaginas}
-          querys={querys}
-          data-test="pagination-component"
+          onPageChange={(page) => setCurrentPage(page)} // Atualiza o estado interno
         />
       )}
     </>
   );
-};
+}

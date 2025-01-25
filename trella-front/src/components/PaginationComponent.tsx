@@ -11,35 +11,28 @@ import {
   PaginationEllipsis,
 } from "./ui/pagination";
 
-// Define the props for the PaginationComponent
 interface PaginationComponentProps {
   maxPageComponent?: number;
   totalPages: number;
   currentPage: number;
-  querys: Record<string, string | number>;
-  route: string;
-  wordQueryPage?: string;
+  onPageChange: (page: number) => void; // Callback para notificar a mudança de página
 }
 
-// Define the structure of a single page object
 interface Page {
   id: number;
   page: number;
   active: boolean;
-  link: string | null;
 }
 
 export default function PaginationComponent({
   maxPageComponent = 3,
   totalPages,
   currentPage,
-  querys,
-  route,
-  wordQueryPage = "pagina",
+  onPageChange,
 }: PaginationComponentProps) {
   const [paginas, setPaginas] = useState<Page[]>([]);
 
-  // Function to generate pagination links
+  // Função para gerar os números de página
   const paginationFunction = (
     maxPageComponent: number,
     currentPage: number,
@@ -63,38 +56,22 @@ export default function PaginationComponent({
     for (let i = pinicio; i <= pfim; i++) {
       if (i <= 0 || i > totalPages) continue;
 
-      const link = gerarLink(querys, i);
-
       pages.push({
         id: i,
         page: i,
         active: currentPage === i,
-        link: link ?? null,
       });
     }
 
     return pages;
   };
 
-  // Function to generate a link for a specific page
-  const gerarLink = (querys: Record<string, string | number>, page: number): string => {
-    let link = route;
-
-    if (page) querys = { ...querys, [wordQueryPage]: page };
-
-    const newQuerys = new URLSearchParams(querys as Record<string, string>);
-
-    link = `${link}?${newQuerys.toString()}`;
-
-    return link;
-  };
-
-  // Update paginas state when querys, currentPage, or totalPages change
+  // Atualiza as páginas quando `currentPage` ou `totalPages` mudam
   useEffect(() => {
     setPaginas(paginationFunction(maxPageComponent, currentPage, totalPages));
-  }, [querys, currentPage, totalPages, maxPageComponent]);
+  }, [currentPage, totalPages, maxPageComponent]);
 
-  // Function to check if a specific page number exists in paginas
+  // Função para verificar se um número de página existe
   const encontrarNumero = (numero: number): boolean => {
     return paginas.some((n) => Number(n.page) === numero);
   };
@@ -106,7 +83,7 @@ export default function PaginationComponent({
           <PaginationPrevious
             data-test="button-pagina-anterior"
             title={"Ir para página anterior"}
-            href={gerarLink(querys, currentPage - 1)}
+            onClick={() => onPageChange(currentPage - 1)}
             aria-disabled={currentPage === 1}
             className={currentPage === 1 ? "pointer-events-none opacity-50" : undefined}
           />
@@ -116,7 +93,7 @@ export default function PaginationComponent({
           <PaginationItem>
             <PaginationLink
               data-test={"primeira-pagina"}
-              href={gerarLink(querys, 1)}
+              onClick={() => onPageChange(1)}
               title={"Ir para página 1"}
             >
               1
@@ -133,7 +110,7 @@ export default function PaginationComponent({
             <PaginationLink
               data-test={`pagina-${pagina.page}`}
               isActive={pagina.active}
-              href={pagina?.link ?? "#"}
+              onClick={() => onPageChange(pagina.page)}
               title={`Ir para página ${pagina?.page}`}
             >
               {pagina?.page}
@@ -148,7 +125,7 @@ export default function PaginationComponent({
           <PaginationItem>
             <PaginationLink
               data-test={`ultima-pagina`}
-              href={gerarLink(querys, totalPages)}
+              onClick={() => onPageChange(totalPages)}
               title={`Ir para página ${totalPages}`}
             >
               {totalPages}
@@ -160,7 +137,7 @@ export default function PaginationComponent({
           <PaginationNext
             title={"Ir para próxima página"}
             data-test="button-proxima-pagina"
-            href={gerarLink(querys, currentPage + 1)}
+            onClick={() => onPageChange(currentPage + 1)}
             aria-disabled={currentPage === totalPages}
             className={currentPage === totalPages ? "pointer-events-none opacity-50" : undefined}
           />
