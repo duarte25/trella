@@ -1,44 +1,23 @@
 import { FieldValues, UseFormReturn } from "react-hook-form";
 import { toast } from "@/hooks/use-toast";
-
-// Interface para representar a resposta de erro da API
-interface ApiErrorResponse {
-  data: unknown[];
-  error: boolean;
-  code: number;
-  message: string;
-  errors: string[]; // Lista de mensagens de erro
-}
+import { ApiError } from "@/types/api";
 
 type Props<T extends FieldValues> = {
   title?: string;
   form: UseFormReturn<T>;
-  apiResponse: ApiErrorResponse; // Passando a resposta completa da API
+  errors: ApiError<T>[];
 };
 
-export function handleErrorMessage<T extends FieldValues>({ apiResponse, form, title }: Props<T>) {
-  const { errors: apiErrors } = apiResponse;
-
-  if (apiErrors && apiErrors.length > 0) {
-    apiErrors.forEach((errorMessage) => {
-      // Exibindo um toast para cada mensagem de erro
+export function handleErrorMessage<T extends FieldValues>({ errors, form, title }: Props<T>) {
+  errors.forEach((error) => {
+    if (form && error.path) {
+      form.setError(error.path, { type: "custom", message: error.message });
+    } else {
       toast({
         title: title ? title : undefined,
         variant: "destructive",
-        description: errorMessage,
+        description: error,
       });
-    });
-
-    // Adicionando um erro genérico ao campo 'root' do formulário
-    if (form) {
-      form.setError('root', { type: 'custom', message: 'Existem erros no formulário.' });
     }
-  } else {
-    // Caso não haja mensagens específicas, exibir uma notificação geral
-    toast({
-      title: title ? title : undefined,
-      variant: "destructive",
-      description: apiResponse.message || "Ocorreu um erro inesperado.",
-    });
-  }
+  });
 }

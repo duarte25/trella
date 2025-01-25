@@ -1,5 +1,3 @@
-"use client";
-
 import {
   Command,
   CommandEmpty,
@@ -40,18 +38,16 @@ export default function ComboboxAPI({
 }: ComboboxAPIProps) {
   const authContext = useContext(AuthContext);
   const token = authContext?.token;
-
   const [open, setOpen] = useState(false);
   const [response, setResponse] = useState<Usuario[]>([]);
   const [isPendingApiCall, startTransitionApiCall] = useTransition();
   const [inputValue, setInputValue] = useState<string>("");
-
+  
   const getApi = () => {
     if (!token) {
       console.error("Token is not available");
       return;
     }
-
     startTransitionApiCall(async () => {
       const response = await fetchApi<undefined, { data: Usuario[] }>({
         route: `${route}?nome=${inputValue}`, // Busca por nome
@@ -59,7 +55,6 @@ export default function ComboboxAPI({
         token: token, // Ensure token is a string
         nextOptions: {},
       });
-
       if (!response.error) {
         setResponse(response.data.data);
       }
@@ -78,7 +73,7 @@ export default function ComboboxAPI({
   const removeOption = (option: Usuario) => {
     if (multipleOption) {
       setSelecionado(
-        (selecionado as Usuario[]).filter((item) => item.cpf !== option.cpf)
+        (selecionado as Usuario[]).filter((item) => item.id !== option.id)
       );
     } else {
       setSelecionado(undefined);
@@ -92,15 +87,15 @@ export default function ComboboxAPI({
 
   const findOption = (dados: Usuario): boolean => {
     if (multipleOption) {
-      return (selecionado as Usuario[]).some((item) => item.cpf === dados.cpf);
+      return (selecionado as Usuario[]).some((item) => item.id === dados.id);
     }
-    return (selecionado as Usuario)?.cpf === dados.cpf;
+    return (selecionado as Usuario)?.id === dados.id;
   };
 
   useEffect(() => {
     const timeout = setTimeout(() => getApi(), 500);
     return () => clearTimeout(timeout);
-      // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [inputValue]);
 
   return (
@@ -116,7 +111,7 @@ export default function ComboboxAPI({
             <div className="flex flex-wrap gap-2">
               {selecionado.map((item) => (
                 <div
-                  key={item.cpf}
+                  key={item.id} // Use id as the unique key
                   className="flex items-center pl-2 pr-5 py-1 bg-slate-200 rounded"
                 >
                   <span className="font-semibold text-sm">{item.nome}</span>
@@ -134,7 +129,7 @@ export default function ComboboxAPI({
                 </div>
               ))}
             </div>
-          ) : selecionado && !Array.isArray(selecionado) ? ( 
+          ) : selecionado && !Array.isArray(selecionado) ? (
             <span>{selecionado.nome}</span>
           ) : (
             <>
@@ -176,10 +171,10 @@ export default function ComboboxAPI({
           <CommandList>
             <CommandGroup>
               {!isPendingApiCall &&
-                response.map((dados, index) => (
+                response.map((dados) => (
                   <CommandItem
-                    key={dados.cpf ?? index}
-                    value={dados.cpf}
+                    key={dados.id} // Use id as the unique key
+                    value={dados.id}
                     onSelect={() =>
                       findOption(dados) ? removeOption(dados) : selectOption(dados)
                     }

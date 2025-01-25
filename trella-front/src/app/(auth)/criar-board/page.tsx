@@ -19,13 +19,13 @@ import { useContext } from "react";
 import { z } from "zod";
 
 const convertToUser = (id: string): Usuario => {
-  return {
-    id,
-    nome: "Nome do Usuário",
-    email: "E-mail do Usuário",
-    cpf: "CPF do Usuário" 
+    return {
+      id,
+      nome: `Nome do Usuário ${id}`,
+      email: `usuario${id}@exemplo.com`,
+      cpf: `CPF-${id}`
+    };
   };
-};
 
 export default function CriarBoard() {
     const router = useRouter();
@@ -80,7 +80,7 @@ export default function CriarBoard() {
                         name="usuarios"
                         render={({ field }) => (
                             <FormItem data-test="combobox-usuarios" className="md:col-span-2">
-                                <FormLabel htmlFor="usuarios">Motoristas *</FormLabel>
+                                <FormLabel htmlFor="usuarios">Usuarios *</FormLabel>
                                 <FormControl>
                                     <ComboboxAPI
                                         route={"/auth/profile"}

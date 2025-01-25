@@ -6,9 +6,7 @@ applyZodInitialConfig();
 export class BoardSchemas {
     static criar = z.object({
         nome: z.string().min(1).max(100).trim(),
-        usuarios: z.object({
-            _id: z.string()
-          }).array().min(1).transform((value) => value.map((item) => item._id))
+        usuarios: z.array(z.string()).min(1) // Aceita um array de strings (IDs)
     });
 
     static filtrarBoards = z.object({
