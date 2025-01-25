@@ -4,11 +4,11 @@ interface Dados {
   cpf?: string;
 }
 
-interface MotoristaOptionsProps {
+interface UsuariosOptionsProps {
   dados: Dados;
 }
 
-export default function UsuarioOptions({ dados }: MotoristaOptionsProps) {
+export default function UsuarioOptions({ dados }: UsuariosOptionsProps) {
 
   return (
     <div className="flex items-center gap-4">

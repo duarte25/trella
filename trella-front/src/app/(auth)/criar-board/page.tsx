@@ -15,17 +15,8 @@ import { Usuario } from "@/api/models/Usuario";
 import { Input } from "@/components/ui/input";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
-import { useContext } from "react";
+import { useContext, useEffect, useState } from "react";
 import { z } from "zod";
-
-const convertToUser = (id: string): Usuario => {
-    return {
-      id,
-      nome: `Nome do Usuário ${id}`,
-      email: `usuario${id}@exemplo.com`,
-      cpf: `CPF-${id}`
-    };
-  };
 
 export default function CriarBoard() {
     const router = useRouter();
@@ -35,11 +26,35 @@ export default function CriarBoard() {
 
     const form = useForm<z.infer<typeof schema>>({
         resolver: zodResolver(schema),
-        values: {
+        defaultValues: {
             nome: "",
-            usuarios: []
+            usuarios: [] // Inicializa como um array vazio de IDs
         }
     });
+
+    // Estado para armazenar a lista de usuários buscados da API
+    const [response, setResponse] = useState<Usuario[]>([]);
+
+    // Função para buscar os usuários da API
+    const buscarUsuarios = async () => {
+        if (!token) return;
+
+        const response = await fetchApi<undefined, { data: Usuario[] }>({
+            route: "/auth/profile",
+            method: "GET",
+            token: token,
+            nextOptions: {},
+        });
+
+        if (!response.error) {
+            setResponse(response.data.data); // Atualiza o estado com os usuários buscados
+        }
+    };
+
+    // Busca os usuários ao carregar o componente
+    useEffect(() => {
+        buscarUsuarios();
+    }, [token]);
 
     async function cadastrarBoard(data: z.infer<typeof schema>) {
         const response = await fetchApi<typeof data, BoardResponse>({ route: "/boards", method: "POST", data: data, token: token });
@@ -86,19 +101,17 @@ export default function CriarBoard() {
                                         route={"/auth/profile"}
                                         multipleOption={true}
                                         placeholderInputSearch={"Busque por nome ou cpf"}
-                                        placeholderUnselected={"Selecione o motorista"}
-                                        querysPrimary={{ nome: "input" }}
-                                        querysSecondary={{ cpf: "input" }}
-                                        selecionado={field.value.map(convertToUser)}
+                                        placeholderUnselected={"Selecione os usuários"}
+                                        selecionado={response.filter((user) => field.value.includes(user.id))} // Filtra os usuários selecionados
                                         setSelecionado={(value: Usuario | Usuario[] | undefined) => {
+                                            // Transforma os objetos Usuario em IDs
                                             const ids = Array.isArray(value) 
-                                              ? value.map(user => user.id)
-                                              : value 
-                                                ? [value.id]
-                                                : []; // Se for undefined, retorna um array vazio
-                                          
-                                            field.onChange(ids); 
-                                          }}
+                                                ? value.map((user) => user.id) 
+                                                : value 
+                                                    ? [value.id] 
+                                                    : [];
+                                            field.onChange(ids); // Atualiza field.value com os IDs
+                                        }}
                                         selectedField={(selecionado: Usuario) => selecionado?.nome}
                                         renderOption={(dados: Usuario) => <UsuarioOptions dados={dados} />}
                                     />
@@ -112,7 +125,6 @@ export default function CriarBoard() {
                         <ButtonLink href={`/home`} size="lg" variant="outline" data-test="button-voltar">Voltar</ButtonLink>
                         <ButtonLoading isLoading={form.formState.isSubmitting} data-test="button-editar">Salvar</ButtonLoading>
                     </div>
-
                 </form>
             </Form>
         </div>
