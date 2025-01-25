@@ -10,4 +10,8 @@ export class BoardSchemas {
             _id: z.string()
           }).array().min(1).transform((value) => value.map((item) => item._id))
     });
+
+    static filtrarBoards = z.object({
+        nome: z.string().min(1).max(100).trim()
+    })
 }
