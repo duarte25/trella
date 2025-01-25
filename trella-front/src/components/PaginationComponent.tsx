@@ -45,8 +45,8 @@ export default function PaginationComponent({
     currentPage: number,
     totalPages: number
   ): Page[] => {
-    let pages: Page[] = [];
-    let metade = Math.floor(maxPageComponent / 2);
+    const pages: Page[] = [];
+    const metade = Math.floor(maxPageComponent / 2);
     let pinicio = currentPage - metade;
     let pfim = currentPage + metade;
 
@@ -63,7 +63,7 @@ export default function PaginationComponent({
     for (let i = pinicio; i <= pfim; i++) {
       if (i <= 0 || i > totalPages) continue;
 
-      let link = gerarLink(querys, i);
+      const link = gerarLink(querys, i);
 
       pages.push({
         id: i,
@@ -82,7 +82,7 @@ export default function PaginationComponent({
 
     if (page) querys = { ...querys, [wordQueryPage]: page };
 
-    let newQuerys = new URLSearchParams(querys as Record<string, string>);
+    const newQuerys = new URLSearchParams(querys as Record<string, string>);
 
     link = `${link}?${newQuerys.toString()}`;
 

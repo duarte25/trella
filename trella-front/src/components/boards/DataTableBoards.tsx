@@ -2,23 +2,18 @@
 
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { BoardResponseData } from "@/api/responses/BoardResponse";
 import { Board } from "@/api/models/Board";
 import { Eye } from "lucide-react";
 import IconLink from "../IconLink";
 
-
 interface DataTableBoardsProps {
-  dados: {
-    data: Board[];
-    error?: boolean;
-    errors?: unknown;
-    resultados?: number;
-    totalPaginas: number;
-    pagina: number;
-  };
+  dados: BoardResponseData;
 }
 
 export default function DataTableBoards({ dados }: DataTableBoardsProps) {
+
+  console.log("DADOsssS", dados)
   return (
     <Table data-test="tabela-boards">
       <TableHeader>
@@ -29,7 +24,7 @@ export default function DataTableBoards({ dados }: DataTableBoardsProps) {
         </TableRow>
       </TableHeader>
       <TableBody>
-        {dados?.data?.map((board) => (
+        {dados?.data?.map((board: Board) => (
           <TableRow
             key={board?._id}
             data-test={`linha-board-${board?._id}`}

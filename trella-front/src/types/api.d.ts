@@ -1,6 +1,5 @@
 export interface ApiError {
     message: string;
-    path?: string;
   }
   
   export interface ApiResponse<T, isArray extends boolean = false> {

@@ -1,11 +1,19 @@
 import { Board } from "../models/Board";
 
-export interface BoardResponse {
+export interface BoardResponseData {
   data: Board[]; 
-  limite: number;
-  pagina: number;
   resultados: number;
+  limite: number;
   totalPaginas: number;
+  pagina: number;
+}
+
+export interface BoardResponse {
+  data: BoardResponseData;
+  error: boolean;
+  code: number;
+  message: string;
+  errors: unknown[];
 }
 
 export interface QueryParams {

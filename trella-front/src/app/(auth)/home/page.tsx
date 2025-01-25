@@ -1,6 +1,5 @@
 "use client"
 
-// app/page.tsx (Server Component)
 import DataTableBoards from "@/components/boards/DataTableBoards";
 import { BoardSchemas } from "@/schemas/BoardSchemas";
 import GetTableData from "@/components/GetTableData";
@@ -14,12 +13,11 @@ export default function Home() {
   return (
     <div>
       <GetTableData
-        route={"/boards"}
-        routePagination={"/boards"}
-        schema={BoardSchemas.filtrarBoards}
         TableComponent={DataTableBoards}
         querys={{ page: 1, limit: 10 }}
-        fetchTag={"getRastreadores"}
+        fetchTag={"getBoards"}
+        route={"/boards"}
+        schema={BoardSchemas.filtrarBoards}
         token={token}
       />
     </div>

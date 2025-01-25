@@ -1,28 +1,17 @@
+import { BoardResponseData } from "@/api/responses/BoardResponse";
 import PaginationComponent from "./PaginationComponent";
 import RefreshTableButton from "./RefreshTableButton";
 import { fetchApi } from "@/api/services/fetchApi";
 import { useQuery } from "@tanstack/react-query";
-import { Board } from "@/api/models/Board";
 import React from "react";
 
-interface ApiResponse {
-  data: Board[];
-  error?: boolean;
-  errors?: unknown;
-  resultados?: number;
-  totalPaginas: number;
-  pagina: number;
-}
 
 interface GetTableDataProps {
-  TableComponent: React.ComponentType<{ dados: ApiResponse }>;
+  TableComponent: React.ComponentType<{ dados: BoardResponseData }>;
   querys: Record<string, string | number>;
   fetchTag: string;
   schema?: unknown;
   route: string;
-  hiddenQuerys?: Record<string, string | number>;
-  warningMessage?: string;
-  routePagination?: string;
   token: string | null;
 }
 
@@ -33,18 +22,19 @@ export default function GetTableDataComponent({
   route,
   token,
 }: GetTableDataProps) {
-  const { data, isLoading, isError } = useQuery<ApiResponse>({
+  const { data, isLoading, isError } = useQuery<BoardResponseData>({
     queryKey: ["getTableData", querys],
     queryFn: async () => {
       if (!token) {
         throw new Error("Token is missing");
       }
-      const response = await fetchApi<undefined, ApiResponse>({
+      const response = await fetchApi<undefined, BoardResponseData>({
         route: route,
         method: "GET",
         token: token,
         nextOptions: {},
       });
+
       if (response.error) {
         throw new Error(response.errors ? JSON.stringify(response.errors) : "Unknown error");
       }

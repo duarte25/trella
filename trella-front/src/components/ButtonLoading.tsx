@@ -1,14 +1,14 @@
 import { Loader2 } from "lucide-react";
 import { Button } from "./ui/button";
-import { cn } from "@/lib/utils";
 import { ReactNode } from "react";
+import { cn } from "@/lib/utils";
 
 interface ButtonLoadingProps {
   isLoading: boolean;
   children?: ReactNode;
   className?: string;
   type?: "button" | "submit" | "reset";
-  size?: string;
+  size?: "default" | "sm" | "lg" | "icon" | null | undefined; 
   [key: string]: unknown; // Permite props adicionais
 }
 

@@ -16,10 +16,10 @@ import { useContext, useEffect, useState, useTransition } from "react";
 import { Check, ChevronDown, Search, X } from "lucide-react";
 import { AuthContext } from "@/contexts/AuthContext";
 import { fetchApi } from "@/api/services/fetchApi";
+import { Usuario } from "@/api/models/Usuario";
 import SpinnerLoading from "./SpinnerLoading";
 import { Button } from "./ui/button";
 import { cn } from "@/lib/utils";
-import { Usuario } from "@/api/models/Usuario";
 
 interface ComboboxAPIProps {
   route: string;
@@ -134,7 +134,7 @@ export default function ComboboxAPI({
                 </div>
               ))}
             </div>
-          ) : selecionado && !Array.isArray(selecionado) ? ( // Check if selecionado is a single Usuario
+          ) : selecionado && !Array.isArray(selecionado) ? ( 
             <span>{selecionado.nome}</span>
           ) : (
             <>

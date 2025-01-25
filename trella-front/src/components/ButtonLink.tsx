@@ -1,11 +1,11 @@
 "use client";
 
 import { Button, buttonVariants } from "./ui/button";
-import { ArrowLeft } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { ArrowLeft } from "lucide-react";
+import { ReactNode } from "react";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
-import { ReactNode } from "react";
 
 interface ButtonLinkProps {
   href?: string;
@@ -13,9 +13,9 @@ interface ButtonLinkProps {
   showIcon?: boolean;
   sessionStorageKey?: string;
   className?: string;
-  variant?: string;
-  size?: string;
-  [key: string]: any;
+  variant?: "default" | "destructive" | "outline" | "secondary" | "ghost" | "link" | null | undefined; 
+  size?: "default" | "sm" | "lg" | "icon" | null | undefined; 
+  [key: string]: unknown;
 }
 
 export default function ButtonLink({
@@ -24,23 +24,21 @@ export default function ButtonLink({
   showIcon = false,
   sessionStorageKey,
   className,
-  variant = "",
-  size = "",
+  variant = "default",
+  size = "default", 
   ...props
 }: ButtonLinkProps) {
   const router = useRouter();
-
+  
   if (href) {
-    // Pegar as querys que estão no sessionStorage
     let session: string | null = null;
     let urlSessionStorage: string | null = null;
-
+    
     if (typeof window !== "undefined") {
       session = sessionStorage.getItem(sessionStorageKey || "");
     }
-
+    
     if (session) {
-      // Processo para desmontar o href para adicionar o link com as querys
       if (session.charAt(0) !== "/") {
         const lastSlashIndex = href.lastIndexOf("/");
         const beforeLastSlash = href.slice(0, lastSlashIndex);
@@ -53,7 +51,7 @@ export default function ButtonLink({
     return (
       <Link
         href={urlSessionStorage ? urlSessionStorage : href}
-        className={cn(buttonVariants({ variant, size }, className), "flex gap-1", className)}
+        className={cn(buttonVariants({ variant, size }), className, "flex gap-1")} // Correção na chamada da função cn
         {...props}
         replace={true}
       >
@@ -69,7 +67,7 @@ export default function ButtonLink({
       variant={variant}
       onClick={() => router.back()}
       size={size}
-      className={cn("flex gap-1", className)}
+      className={cn("flex gap-1", className)} // Correção na chamada da função cn
       {...props}
     >
       {showIcon && <ArrowLeft className="w-4 h-4" />}

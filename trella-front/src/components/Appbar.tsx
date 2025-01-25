@@ -3,17 +3,14 @@
 import { Sidebar, SidebarContent, SidebarFooter, SidebarGroup, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem, useSidebar } from "@/components/ui/sidebar";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { ChevronsUpDown, LogOut, User, Loader2, Presentation } from "lucide-react";
-import { BoardResponse } from "@/api/responses/BoardResponse";
 import { deleteCookie } from "@/actions/handleCookie";
 import { AuthContext } from "@/contexts/AuthContext";
-import { fetchApi } from "@/api/services/fetchApi";
-import { useQuery } from "@tanstack/react-query";
 import { useContext, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 
 export default function Appbar() {
-  const { user, token } = useContext(AuthContext);
+  const { user } = useContext(AuthContext);
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
 
@@ -27,33 +24,12 @@ export default function Appbar() {
         setIsLoading(false);
         router.replace("/");
       }, 1000);
-    } catch (error) {
-      console.error("Error logging out:", error);
+    } catch {
       setIsLoading(false);
     }
   };
 
   const { isMobile } = useSidebar();
-
-  const { data } = useQuery<BoardResponse>({
-    queryKey: ["getBoards"],
-    queryFn: async () => {
-      const response = await fetchApi<undefined, BoardResponse>({
-        route: "/boards",
-        method: "GET",
-        token: token,
-        nextOptions: {},
-      });
-
-      if (response.error) {
-        throw new Error(response.message);
-      }
-
-      return response.data; 
-    },
-    retry: 2,
-    refetchOnWindowFocus: false,
-  });
 
   return (
     <>
@@ -95,24 +71,6 @@ export default function Appbar() {
                 </SidebarMenuItem>
               </SidebarMenu>
                
-                <SidebarMenuItem>
-                  <SidebarMenuButton asChild>
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <button className="w-full">Boards</button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent>
-                        {data?.data?.map((item) => (
-                          <DropdownMenuItem key={item._id}>
-                            <LogOut />
-                            {item.nome}
-                          </DropdownMenuItem>
-                        ))}
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-
             </SidebarMenu>
           </SidebarGroup>
         </SidebarContent>
