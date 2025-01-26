@@ -12,7 +12,7 @@ export interface ApiError {
   
   export interface FetchApiProps<T> {
     route: string;
-    method: "GET" | "POST" | "PUT" | "DELETE";
+    method: "GET" | "POST" | "PATCH" | "DELETE";
     data?: T | null;
     token?: string;
     nextOptions?: NextFetchRequestConfig;

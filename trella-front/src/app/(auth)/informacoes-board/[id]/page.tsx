@@ -32,7 +32,7 @@ export default function InformacoesBoard({ params }: InformacoesBoardProps) {
   const [columns, setColumns] = useState<StatusColumns>(statusColumns);
 
   const { isLoading, isError, error, data } = useQuery<TarefaResponse>({
-    queryKey: ["GetBoard", id],
+    queryKey: ["GetTarefas", id],
     queryFn: async () => {
       const response = await fetchApi<null, TarefaResponse>({
         route: `/tarefas?board_id=${id}`,
@@ -46,23 +46,23 @@ export default function InformacoesBoard({ params }: InformacoesBoardProps) {
 
       return response.data;
     },
-    onSuccess: (data) => {
-      // Reinicialize as colunas apenas quando os dados são carregados com sucesso
-      const newColumns = { ...statusColumns };
-      data.data.forEach((task: Tarefa) => {
-        newColumns[task.status as keyof StatusColumns].push(task);
-      });
-      setColumns(newColumns);
-    },
+    // onSuccess: (data) => {
+    //   // Reinicialize as colunas apenas quando os dados são carregados com sucesso
+    //   const newColumns = { ...statusColumns };
+    //   data.data.forEach((task: Tarefa) => {
+    //     newColumns[task.status as keyof StatusColumns].push(task);
+    //   });
+    //   setColumns(newColumns);
+    // },
   });
 
   const mutation = useMutation({
-    mutationFn: (updatedTask: Tarefa) => {
-      return fetchApi<Tarefa, TarefaResponse>({
+    mutationFn: (updatedTask: { _id: string; status: string }) => {
+      return fetchApi<{ status: string }, TarefaResponse>({
         route: `/tarefas/${updatedTask._id}`,
-        method: "PUT",
+        method: "PATCH",
         token: token,
-        body: updatedTask,
+        data: { status: updatedTask.status },
       });
     },
     onSuccess: () => {
@@ -80,50 +80,41 @@ export default function InformacoesBoard({ params }: InformacoesBoardProps) {
       return;
     }
 
-    const start = columns[source.droppableId as keyof StatusColumns];
-    const finish = columns[destination.droppableId as keyof StatusColumns];
+    const startColumn = columns[source.droppableId as keyof StatusColumns];
+    const finishColumn = columns[destination.droppableId as keyof StatusColumns];
 
-    if (start === finish) {
-      const newTaskIds = Array.from(start);
-      const [removed] = newTaskIds.splice(source.index, 1);
-      newTaskIds.splice(destination.index, 0, removed);
+    if (startColumn === finishColumn) {
+      const newTasks = Array.from(startColumn);
+      const [movedTask] = newTasks.splice(source.index, 1);
+      newTasks.splice(destination.index, 0, movedTask);
 
-      const newColumn = {
-        ...start,
-        tasks: newTaskIds,
+      const newColumns = {
+        ...columns,
+        [source.droppableId]: newTasks,
       };
 
-      setColumns({
-        ...columns,
-        [source.droppableId]: newColumn,
-      });
+      setColumns(newColumns);
       return;
     }
 
     // Movendo de uma coluna para outra
-    const startTasks = Array.from(start);
-    const finishTasks = Array.from(finish);
+    const startTasks = Array.from(startColumn);
+    const finishTasks = Array.from(finishColumn);
     const [movedTask] = startTasks.splice(source.index, 1);
-    movedTask.status = destination.droppableId as any; // Atualizar o status da tarefa
-    finishTasks.splice(destination.index, 0, movedTask);
+    const updatedTask = { _id: movedTask._id, status: destination.droppableId }; // Atualizar o status da tarefa
 
-    const newStartColumn = {
-      ...start,
-      tasks: startTasks,
-    };
-    const newFinishColumn = {
-      ...finish,
-      tasks: finishTasks,
-    };
+    finishTasks.splice(destination.index, 0, { ...movedTask, status: destination.droppableId });
 
-    setColumns({
+    const newColumns = {
       ...columns,
-      [source.droppableId]: newStartColumn,
-      [destination.droppableId]: newFinishColumn,
-    });
+      [source.droppableId]: startTasks,
+      [destination.droppableId]: finishTasks,
+    };
+
+    setColumns(newColumns);
 
     // Atualiza o status da tarefa no banco de dados
-    mutation.mutate(movedTask);
+    mutation.mutate(updatedTask);
   };
 
   useEffect(() => {
@@ -161,29 +152,33 @@ export default function InformacoesBoard({ params }: InformacoesBoardProps) {
                 }}
               >
                 <h2>{columnId}</h2>
-                {tasks.map((task, index) => (
-                  <Draggable key={`${task._id}-${index}`} draggableId={task._id} index={index}>
-                    {(provided) => (
-                      <div
-                        ref={provided.innerRef}
-                        {...provided.draggableProps}
-                        {...provided.dragHandleProps}
-                        style={{
-                          marginBottom: '10px',
-                          padding: '10px',
-                          border: '1px solid #ddd',
-                          borderRadius: '5px',
-                          backgroundColor: '#f9f9f9',
-                          ...provided.draggableProps.style,
-                        }}
-                      >
-                        <h3>{task.titulo}</h3>
-                        <p>{task.descricao}</p>
-                        <p>Responsável: {task.responsavel.nome}</p>
-                      </div>
-                    )}
-                  </Draggable>
-                ))}
+                {Array.isArray(tasks) && tasks.length > 0 ? (
+                  tasks.map((task, index) => (
+                    <Draggable key={`${task._id}-${index}`} draggableId={task._id} index={index}>
+                      {(provided) => (
+                        <div
+                          ref={provided.innerRef}
+                          {...provided.draggableProps}
+                          {...provided.dragHandleProps}
+                          style={{
+                            marginBottom: '10px',
+                            padding: '10px',
+                            border: '1px solid #ddd',
+                            borderRadius: '5px',
+                            backgroundColor: '#f9f9f9',
+                            ...provided.draggableProps.style,
+                          }}
+                        >
+                          <h3>{task.titulo}</h3>
+                          <p>{task.descricao}</p>
+                          <p>Responsável: {task.responsavel.nome}</p>
+                        </div>
+                      )}
+                    </Draggable>
+                  ))
+                ) : (
+                  <p>Nenhuma tarefa nesta coluna</p>
+                )}
                 {provided.placeholder}
               </div>
             )}
