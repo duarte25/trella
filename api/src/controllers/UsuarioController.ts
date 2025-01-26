@@ -117,28 +117,28 @@ export default class UsuarioController {
         return sendResponse(res, 200, { data: findUser });
     }
 
-   // Método para alterar um usuário
-   static async alterarUsuario(req: Request, res: Response): Promise<Response> {
-    // Pega o usuário do validador
-    const usuario = req.validateResult.usuario as IUsuario;
-    const { senha } = req.body;
+    // Método para alterar um usuário
+    static async alterarUsuario(req: Request, res: Response): Promise<Response> {
+        // Pega o usuário do validador
+        const usuario = req.validateResult.usuario as IUsuario;
+        const { senha } = req.body;
 
-    // Só atualiza os campos que foram enviados
-    for (let key in req.body) {
-        // Garantir que estamos acessando apenas as chaves válidas do tipo IUsuario
-        if (key in usuario) {
-            // Acessa de forma segura as propriedades de usuario, usando keyof IUsuario
-            (usuario as any)[key] = req.body[key]; // Usando any para contornar o erro do TypeScript
+        // Só atualiza os campos que foram enviados
+        for (let key in req.body) {
+            // Garantir que estamos acessando apenas as chaves válidas do tipo IUsuario
+            if (key in usuario) {
+                // Acessa de forma segura as propriedades de usuario, usando keyof IUsuario
+                (usuario as any)[key] = req.body[key]; // Usando any para contornar o erro do TypeScript
+            }
         }
-    }
 
-    if (senha) {
-        usuario.senha = bcrypt.hashSync(senha, 10);
-    }
+        if (senha) {
+            usuario.senha = bcrypt.hashSync(senha, 10);
+        }
 
-    await Usuario.findByIdAndUpdate(usuario._id, usuario);
+        await Usuario.findByIdAndUpdate(usuario._id, usuario);
 
-    return res.status(200).json({ data: usuario });
+        return res.status(200).json({ data: usuario });
     }
 
     // Método para deletar um usuário

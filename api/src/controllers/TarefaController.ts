@@ -3,7 +3,7 @@ import { Request, Response } from "express";
 import { paginateOptions } from "./common";
 import { jwtDecode } from "jwt-decode";
 import { usuarioPopulateSelect } from "../models/Usuario";
-import Tarefas from "../models/Tarefas";
+import Tarefas, { ITarefas } from "../models/Tarefas";
 import { ObjectId } from "mongoose";
 
 interface ICreateTarefaRequest {
@@ -75,5 +75,18 @@ export default class TarefaController {
         return sendResponse(res, 200, { data: saveTarefa });
     }
 
+    static async AlterarTarefas(req: Request, res: Response): Promise<Response> {
+        const tarefa = req.validateResult.tarefa as ITarefas;
 
+        for (let key in req.body) {
+
+            if (key in tarefa) {
+                (tarefa as any)[key] = req.body[key];
+            }
+        }
+
+        await Tarefas.findByIdAndUpdate(tarefa._id, tarefa);
+
+        return res.status(200).json({ data: tarefa })
+    }
 }
