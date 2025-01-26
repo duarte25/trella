@@ -1,55 +1,40 @@
-"use client";
+"use client"
 
-import { fetchApi } from '@/api/services/fetchApi';
+import { DragDropContext, Droppable, Draggable, DropResult } from '@hello-pangea/dnd';
+import { TarefaResponse } from '@/api/responses/TarefaResponse';
+import { useQuery, useMutation } from '@tanstack/react-query';
 import { AuthContext } from '@/contexts/AuthContext';
-import { useQuery } from '@tanstack/react-query';
-import React, { useContext } from 'react';
+import React, { useContext, useState, useEffect } from 'react';
+import { fetchApi } from '@/api/services/fetchApi';
+import { Tarefa } from '@/api/models/Tarefa';
 
 type InformacoesBoardProps = {
   params: Promise<{ id: string }>;
 };
 
-interface BoardData {
-  _id: string;
-  board_id: string;
-  status: string;
-  titulo: string;
-  descricao: string;
-  responsavel: {
-    _id: string;
-    nome: string;
-    email: string;
-  };
-  data_inicial: string;
-  data_final: string;
-  _version: number;
-  createdAt: string;
-  updatedAt: string;
-  id: string;
-}
+type StatusColumns = {
+  Open: Tarefa[];
+  Fazendo: Tarefa[];
+  Feito: Tarefa[];
+  Closed: Tarefa[];
+};
 
-interface ApiResponse {
-  data: {
-    data: BoardData[];
-    resultados: number;
-    limite: number;
-    totalPaginas: number;
-    pagina: number;
-  };
-  error: boolean;
-  code: number;
-  message: string;
-  errors: any[];
-}
+const statusColumns: StatusColumns = {
+  Open: [],
+  Fazendo: [],
+  Feito: [],
+  Closed: [],
+};
 
 export default function InformacoesBoard({ params }: InformacoesBoardProps) {
   const { id } = React.use(params);
   const { token } = useContext(AuthContext);
+  const [columns, setColumns] = useState<StatusColumns>(statusColumns);
 
-  const { data, isLoading, isError, error } = useQuery<ApiResponse>({
+  const { isLoading, isError, error, data } = useQuery<TarefaResponse>({
     queryKey: ["GetBoard", id],
     queryFn: async () => {
-      const response = await fetchApi<null, ApiResponse>({
+      const response = await fetchApi<null, TarefaResponse>({
         route: `/tarefas?board_id=${id}`,
         method: "GET",
         token: token,
@@ -59,41 +44,152 @@ export default function InformacoesBoard({ params }: InformacoesBoardProps) {
         throw new Error(response.message || "Erro ao carregar os dados da board");
       }
 
-      return response;
+      return response.data;
+    },
+    onSuccess: (data) => {
+      // Reinicialize as colunas apenas quando os dados são carregados com sucesso
+      const newColumns = { ...statusColumns };
+      data.data.forEach((task: Tarefa) => {
+        newColumns[task.status as keyof StatusColumns].push(task);
+      });
+      setColumns(newColumns);
     },
   });
 
-  // Exibição de loading
+  const mutation = useMutation({
+    mutationFn: (updatedTask: Tarefa) => {
+      return fetchApi<Tarefa, TarefaResponse>({
+        route: `/tarefas/${updatedTask._id}`,
+        method: "PUT",
+        token: token,
+        body: updatedTask,
+      });
+    },
+    onSuccess: () => {
+      // Atualiza o cache ou refetch dos dados
+      // queryClient.invalidateQueries({ queryKey: ['GetBoard', id] });
+    },
+  });
+
+  const onDragEnd = (result: DropResult) => {
+    const { destination, source } = result;
+    if (!destination) {
+      return;
+    }
+    if (destination.droppableId === source.droppableId && destination.index === source.index) {
+      return;
+    }
+
+    const start = columns[source.droppableId as keyof StatusColumns];
+    const finish = columns[destination.droppableId as keyof StatusColumns];
+
+    if (start === finish) {
+      const newTaskIds = Array.from(start);
+      const [removed] = newTaskIds.splice(source.index, 1);
+      newTaskIds.splice(destination.index, 0, removed);
+
+      const newColumn = {
+        ...start,
+        tasks: newTaskIds,
+      };
+
+      setColumns({
+        ...columns,
+        [source.droppableId]: newColumn,
+      });
+      return;
+    }
+
+    // Movendo de uma coluna para outra
+    const startTasks = Array.from(start);
+    const finishTasks = Array.from(finish);
+    const [movedTask] = startTasks.splice(source.index, 1);
+    movedTask.status = destination.droppableId as any; // Atualizar o status da tarefa
+    finishTasks.splice(destination.index, 0, movedTask);
+
+    const newStartColumn = {
+      ...start,
+      tasks: startTasks,
+    };
+    const newFinishColumn = {
+      ...finish,
+      tasks: finishTasks,
+    };
+
+    setColumns({
+      ...columns,
+      [source.droppableId]: newStartColumn,
+      [destination.droppableId]: newFinishColumn,
+    });
+
+    // Atualiza o status da tarefa no banco de dados
+    mutation.mutate(movedTask);
+  };
+
+  useEffect(() => {
+    if (data) {
+      // Reinicialize as colunas com base nos dados obtidos
+      const newColumns = { ...statusColumns };
+      data.data.forEach((task: Tarefa) => {
+        newColumns[task.status as keyof StatusColumns].push(task);
+      });
+      setColumns(newColumns);
+    }
+  }, [data]);
+
   if (isLoading) {
     return <p>Carregando...</p>;
   }
-
-  // Exibição de erro
   if (isError) {
     return <p>Erro: {error?.message || "Falha ao carregar os dados da board"}</p>;
   }
 
-  console.log("Olha a data", data);
-
-  // Exibição dos dados da board
   return (
-    <div>
-      <h1>Informações da Board</h1>
-      <p>ID da Board: {id}</p>
-      {data && data.data.data && data.data.data.length > 0 ? (
-        data.data.data.map((board) => (
-          <div key={board._id} style={{ marginBottom: '20px', border: '1px solid #ccc', padding: '10px' }}>
-            <h2>{board.titulo}</h2>
-            <p>{board.descricao}</p>
-            <p>Status: {board.status}</p>
-            <p>Responsável: {board.responsavel.nome}</p>
-            <p>Data Inicial: {new Date(board.data_inicial).toLocaleDateString()}</p>
-            <p>Data Final: {new Date(board.data_final).toLocaleDateString()}</p>
-          </div>
-        ))
-      ) : (
-        <p>Nenhuma tarefa encontrada para esta board.</p>
-      )}
-    </div>
+    <DragDropContext onDragEnd={onDragEnd}>
+      <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+        {Object.entries(columns).map(([columnId, tasks]) => (
+          <Droppable droppableId={columnId} key={columnId}>
+            {(provided) => (
+              <div
+                ref={provided.innerRef}
+                {...provided.droppableProps}
+                style={{
+                  width: '22%',
+                  padding: '10px',
+                  border: '1px solid #ccc',
+                  borderRadius: '5px',
+                }}
+              >
+                <h2>{columnId}</h2>
+                {tasks.map((task, index) => (
+                  <Draggable key={`${task._id}-${index}`} draggableId={task._id} index={index}>
+                    {(provided) => (
+                      <div
+                        ref={provided.innerRef}
+                        {...provided.draggableProps}
+                        {...provided.dragHandleProps}
+                        style={{
+                          marginBottom: '10px',
+                          padding: '10px',
+                          border: '1px solid #ddd',
+                          borderRadius: '5px',
+                          backgroundColor: '#f9f9f9',
+                          ...provided.draggableProps.style,
+                        }}
+                      >
+                        <h3>{task.titulo}</h3>
+                        <p>{task.descricao}</p>
+                        <p>Responsável: {task.responsavel.nome}</p>
+                      </div>
+                    )}
+                  </Draggable>
+                ))}
+                {provided.placeholder}
+              </div>
+            )}
+          </Droppable>
+        ))}
+      </div>
+    </DragDropContext>
   );
 }
