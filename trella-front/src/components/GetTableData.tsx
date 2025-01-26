@@ -23,7 +23,7 @@ export default function GetTableDataComponent({
   route,
   token,
 }: GetTableDataProps) {
-  const [currentPage, setCurrentPage] = useState(1); // Estado interno para a página atual
+  const [currentPage, setCurrentPage] = useState(1); 
 
   // Atualiza os parâmetros com a página atual
   const updatedQuerys = {
@@ -31,7 +31,7 @@ export default function GetTableDataComponent({
     pagina: currentPage, // Usa o estado interno da página
   };
 
-  const { data, isLoading, isError } = useQuery<BoardResponseData>({
+  const { data, isLoading, isError, refetch } = useQuery<BoardResponseData>({
     queryKey: ["getTableData", updatedQuerys],
     queryFn: async () => {
       if (!token) {
@@ -39,7 +39,7 @@ export default function GetTableDataComponent({
       }
 
       // Adiciona os parâmetros à URL da requisição
-      const queryString = new URLSearchParams(updatedQuerys as Record<string, string>).toString();
+      const queryString = new URLSearchParams(updatedQuerys as unknown as Record<string, string>).toString();
       const apiUrl = `${route}?${queryString}`;
 
       const response = await fetchApi<undefined, BoardResponseData>({
@@ -57,6 +57,10 @@ export default function GetTableDataComponent({
     retry: 2,
     refetchOnWindowFocus: false,
   });
+
+  const handleUpdate = () => {
+    refetch(); // Refaz a solicitação GET para atualizar os dados
+  };
 
   if (isLoading) {
     return <div>Loading...</div>;
@@ -80,7 +84,7 @@ export default function GetTableDataComponent({
           )}
           <RefreshTableButton tag={fetchTag} />
         </div>
-        <TableComponent dados={data || { data: [], error: true, totalPaginas: 0, pagina: 0 }} />
+        <TableComponent dados={data || { data: [], error: true, totalPaginas: 0, pagina: 0 }} onUpdate={handleUpdate} />
       </div>
       {data.totalPaginas > 1 && (
         <PaginationComponent
