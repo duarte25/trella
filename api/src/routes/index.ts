@@ -2,6 +2,7 @@ import logRoutes from "../middlewares/LogRoutesMiddleware";
 import { Application, Request, Response } from "express";
 import usuarios from "./usuarioRouter";
 import boards from "./boardRouter";
+import tarefas from "./tarefaRouter";
 import auth from "./authRouter";
 
 const routes = (app: Application): void => {
@@ -16,7 +17,8 @@ const routes = (app: Application): void => {
     app.use(
         auth,
         usuarios,
-        boards
+        boards,
+        tarefas
     );
 };
 

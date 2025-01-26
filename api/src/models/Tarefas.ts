@@ -1,10 +1,17 @@
 import mongoose, { Document, Schema, ObjectId, PaginateModel } from "mongoose";
 import paginate from "mongoose-paginate-v2";
 
+export enum StatusTarefas {
+    OPEN = "Open",
+    FAZENDO = "Fazendo",
+    FEITO = "Feito",
+    CLOSED = "Closed"
+}
+
 export interface ITarefas extends Document {
     _id: ObjectId;
     board_id: ObjectId;
-    status: string;
+    status: StatusTarefas;
     titulo: string;
     descricao: string;
     responsavel: ObjectId;
@@ -24,8 +31,7 @@ const tarefasSchema: Schema<ITarefas> = new mongoose.Schema(
         },
         status: {
             type: String,
-            minlength: 3,
-            maxlength: 200,
+            enum: Object.values(StatusTarefas),
             required: true,
         },
         titulo: {
@@ -36,7 +42,7 @@ const tarefasSchema: Schema<ITarefas> = new mongoose.Schema(
         },
         descricao: {
             type: String,
-            minlength: 11,
+            minlength: 1,
             maxlength: 554
         },
         responsavel: {
