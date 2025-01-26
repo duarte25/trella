@@ -4,7 +4,7 @@ import { ApiError } from "@/types/api";
 
 type Props<T extends FieldValues> = {
   title?: string;
-  form: UseFormReturn<T>;
+  form?: UseFormReturn<T>;
   errors: ApiError<T>[];
 };
 

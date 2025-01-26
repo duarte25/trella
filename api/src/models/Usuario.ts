@@ -13,6 +13,7 @@ export interface IUsuario extends Document {
 }
 
 // Definindo o esquema para o modelo de usuário
+export const usuarioPopulateSelect = { nome: 1, email: 1 };
 const usuarioSchema: Schema<IUsuario> = new mongoose.Schema(
   {
     nome: {
