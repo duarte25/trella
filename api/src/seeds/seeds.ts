@@ -1,5 +1,6 @@
 import db from "../config/db_config";
 import boardSeed from "./boardSeed";
+import tarefasSeed from "./tarefasSeed";
 import usuarioSeed from "./usuarioSeed";
 
 let quantidade: number = 50; // Defina a quantidade como um número
@@ -14,6 +15,8 @@ await db.getCollection("usuarios").deleteMany({});  // Adicione {} para garantir
 await usuarioSeed(quantidade);
 
 await boardSeed(quantidade);
+
+await tarefasSeed(quantidade * 10)
 
 // Desconectar do banco de dados
 await db.desconetarBanco(); // Certifique-se de aguardar o fechamento da conexão
