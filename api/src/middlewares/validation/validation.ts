@@ -215,6 +215,20 @@ export class ValidationFuncs {
         return true;
     };
 
+    static enum(opcoes: { values: any[], message?: string }) {
+        return async (value: any, context: ValidationContext) => {
+            if (!Array.isArray(opcoes.values) || opcoes.values.length === 0) {
+                throw new Error("A função de validação enum deve receber um array values");
+            }
+
+            if (!opcoes.values.includes(value)) {
+                return opcoes.message || `O valor do campo ${context.path} deve ser um dos seguintes: ${opcoes.values.join(', ')}`;
+            }
+
+            return true;
+        };
+    }
+
     static toMongooseObj = <T = any>(opcoes: UniqueOptions<T>) =>
         async (value: string, val: ValidationContext): Promise<true | string> => {
             const path = val.path;

@@ -24,9 +24,9 @@ export default async function LayoutAuth({
     return (
         <ReactQueryProvider>
             <AuthProvider user={decode as Usuario} token={token.value}>
-                <SidebarProvider>
+                <SidebarProvider className="flex md:flex-row flex-col">
                     <Appbar />
-                    <SidebarInset className="flex flex-col">
+                    <SidebarInset>
                         <header className="flex h-12 shrink-0 items-center gap-2 border-b">
                             <div className="flex items-center gap-2 px-3 font-semibold">
                                 <SidebarTrigger />
@@ -34,7 +34,7 @@ export default async function LayoutAuth({
                                 Trella
                             </div>
                         </header>
-                        <main className="w-full overflow-hidden p-5">
+                        <main className="w-full overflow-hidden">
                             {children}
                         </main>
                     </SidebarInset>

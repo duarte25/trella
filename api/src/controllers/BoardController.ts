@@ -4,6 +4,7 @@ import { Request, Response } from "express";
 import { paginateOptions } from "./common";
 import { jwtDecode } from "jwt-decode";
 import { ObjectId } from "mongoose";
+import { usuarioPopulateSelect } from "../models/Usuario";
 
 interface ICreateBoardRequest {
     nome: string;
@@ -58,6 +59,10 @@ export default class BoardController {
                 limit: limite,
                 sort: { _id: -1 },
                 lean: true,
+                populate: [
+                    { path: "usuarios", select: usuarioPopulateSelect },
+                    { path: "responsavel", select: usuarioPopulateSelect }
+                ]
             }
         );
 

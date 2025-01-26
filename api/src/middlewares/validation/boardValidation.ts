@@ -21,8 +21,9 @@ export default class BoardValidation {
 
         const tokenDecoded = req.decodedToken;
         const userId = tokenDecoded?.id;
+        const responsavelStr = String(board.responsavel);
 
-        if (userId !== board.responsavel && !board.usuarios.includes(userId)) {
+        if (userId !== responsavelStr && !board.usuarios.map(String).includes(userId)) {
             return sendError(res, 403, "Sem permissão para acessar.");
         }
 
@@ -116,8 +117,9 @@ export default class BoardValidation {
 
         const tokenDecoded = req.decodedToken;
         const userId = tokenDecoded?.id;
+        const responsavelStr = String(board.responsavel);
 
-        if (userId !== board.responsavel) {
+        if (userId !== responsavelStr) {
             return sendError(res, 403, "Sem permissão para deletar essa board.");
         }
 

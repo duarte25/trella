@@ -13,7 +13,7 @@ import IconLink from "../IconLink";
 
 interface DataTableBoardsProps {
   dados: BoardResponseData;
-  onUpdate: (newData: BoardResponseData) => void; // Função de callback para atualizar os dados
+  onUpdate: () => void;
 }
 
 export default function DataTableBoards({ dados, onUpdate }: DataTableBoardsProps) {
@@ -23,18 +23,21 @@ export default function DataTableBoards({ dados, onUpdate }: DataTableBoardsProp
 
   const handleDelete = async () => {
     if (!boardToDelete) return;
-
+  
     try {
       const response = await fetchApi({
         route: `/boards/${boardToDelete._id}`,
         method: "DELETE",
         token: token,
       });
-
+  
       if (response.error) {
-        handleErrorMessage({ errors: response.errors, form: "" });
-      } 
-
+        handleErrorMessage({ errors: response.errors });
+      } else {
+        // Chama a função onUpdate para refazer a solicitação GET e atualizar os dados
+        onUpdate();
+      }
+  
     } catch (error) {
       console.error("Error deleting board:", error);
     } finally {
@@ -66,7 +69,7 @@ export default function DataTableBoards({ dados, onUpdate }: DataTableBoardsProp
                 <TooltipProvider delayDuration={100}>
                   <Tooltip>
                     <TooltipTrigger>
-                      <IconLink data-test="link-informacoes" href={`/boards/${board?._id}/informacoes`}>
+                      <IconLink data-test="link-informacoes" href={`/informacoes-board/${board?._id}`}>
                         <Eye className="w-4 h-4" />
                       </IconLink>
                     </TooltipTrigger>
