@@ -1,0 +1,135 @@
+import { useState, useEffect } from 'react';
+import { useQuery, useMutation } from '@tanstack/react-query';
+import { fetchApi } from '@/api/services/fetchApi';
+import { Tarefa } from '@/api/models/Tarefa';
+import { AuthContext } from '@/contexts/AuthContext';
+import { useContext } from 'react';
+import { TarefaResponse, TarefaResponseData } from '@/api/responses/TarefaResponse';
+import { DropResult } from '@hello-pangea/dnd';
+import { format } from 'date-fns';
+
+export type StatusColumns = {
+  Open: Tarefa[];
+  Fazendo: Tarefa[];
+  Feito: Tarefa[];
+  Closed: Tarefa[];
+};
+
+export const useTaskBoard = (id: string) => {
+  const { token } = useContext(AuthContext);
+  const [columns, setColumns] = useState<StatusColumns>({
+    Open: [],
+    Fazendo: [],
+    Feito: [],
+    Closed: [],
+  });
+
+  const { isLoading, isError, error, data } = useQuery<TarefaResponseData>({
+    queryKey: ["GetTarefas", id],
+    queryFn: async () => {
+      const response = await fetchApi<null, TarefaResponse>({
+        route: `/tarefas?board_id=${id}`,
+        method: "GET",
+        token: token,
+      });
+      if (response.error) {
+        throw new Error(response.message || "Erro ao carregar os dados da board");
+      }
+      return response.data;
+    },
+  });
+
+  const createTaskMutation = useMutation({
+    mutationFn: (taskData: Partial<Tarefa>) => {
+      return fetchApi<Partial<Tarefa>, TarefaResponse>({
+        route: '/tarefas',
+        method: 'POST',
+        token: token,
+        data: taskData,
+      });
+    },
+    onSuccess: (data) => {
+      const updatedColumns = { ...columns };
+      updatedColumns.Open.push(data.data);
+      setColumns(updatedColumns);
+    },
+  });
+
+  const mutation = useMutation({
+    mutationFn: (updatedTask: { _id: string; status: string }) => {
+      return fetchApi<{ status: string }, TarefaResponse>({
+        route: `/tarefas/${updatedTask._id}`,
+        method: "PATCH",
+        token: token,
+        data: { status: updatedTask.status },
+      });
+    },
+  });
+
+  const onDragEnd = (result: DropResult) => {
+    const { destination, source } = result;
+    if (!destination) {
+      return;
+    }
+    if (destination.droppableId === source.droppableId && destination.index === source.index) {
+      return;
+    }
+    const startColumn = columns[source.droppableId as keyof StatusColumns];
+    const finishColumn = columns[destination.droppableId as keyof StatusColumns];
+    if (startColumn === finishColumn) {
+      const newTasks = Array.from(startColumn);
+      const [movedTask] = newTasks.splice(source.index, 1);
+      newTasks.splice(destination.index, 0, movedTask);
+      const newColumns = {
+        ...columns,
+        [source.droppableId]: newTasks,
+      };
+      setColumns(newColumns);
+      return;
+    }
+    // Movendo de uma coluna para outra
+    const startTasks = Array.from(startColumn);
+    const finishTasks = Array.from(finishColumn);
+    const [movedTask] = startTasks.splice(source.index, 1);
+    const updatedTask = { _id: movedTask._id, status: destination.droppableId }; // Atualizar o status da tarefa
+    finishTasks.splice(destination.index, 0, { ...movedTask, status: destination.droppableId });
+    const newColumns = {
+      ...columns,
+      [source.droppableId]: startTasks,
+      [destination.droppableId]: finishTasks,
+    };
+    setColumns(newColumns);
+    // Atualiza o status da tarefa no banco de dados
+    mutation.mutate(updatedTask);
+  };
+
+  useEffect(() => {
+    if (data) {
+      // Reinicialize as colunas com base nos dados obtidos
+      const newColumns = { ...columns };
+      data.data.forEach((task: Tarefa) => {
+        newColumns[task.status as keyof StatusColumns].push(task);
+      });
+      setColumns(newColumns);
+    }
+  }, [data]);
+
+  return {
+    columns,
+    isLoading,
+    isError,
+    error,
+    onDragEnd,
+    handleCreateTask: (values: any) => {
+      createTaskMutation.mutate({
+        board_id: id,
+        status: 'Open',
+        titulo: values.titulo,
+        descricao: values.descricao,
+        responsavel: values.responsavel,
+        data_inicial: format(values.data_inicial, "yyyy-MM-dd"),
+        data_final: format(values.data_final, "yyyy-MM-dd"),
+      });
+    },
+  };
+};

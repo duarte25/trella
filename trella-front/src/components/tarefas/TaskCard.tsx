@@ -1,10 +1,11 @@
 import React from 'react';
 import { Draggable } from '@hello-pangea/dnd';
+import { Tarefa } from '@/api/models/Tarefa';
 
-interface TaskCardProps {
-  task: any;
+type TaskCardProps = {
+  task: Tarefa;
   index: number;
-}
+};
 
 export const TaskCard: React.FC<TaskCardProps> = ({ task, index }) => {
   return (

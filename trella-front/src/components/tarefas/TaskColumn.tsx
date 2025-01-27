@@ -1,11 +1,12 @@
 import React from 'react';
 import { Droppable } from '@hello-pangea/dnd';
+import { Tarefa } from '@/api/models/Tarefa';
 import { TaskCard } from './TaskCard';
 
-interface TaskColumnProps {
+type TaskColumnProps = {
   columnId: string;
-  tasks: unknown[];
-}
+  tasks: Tarefa[];
+};
 
 export const TaskColumn: React.FC<TaskColumnProps> = ({ columnId, tasks }) => {
   return (

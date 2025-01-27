@@ -10,6 +10,7 @@ import { Input } from "@/components/ui/input";
 import { useForm } from "react-hook-form";
 import { format } from "date-fns";
 import * as z from "zod";
+import { useState } from "react";
 
 const schema = TarefaSchemas.criar;
 
@@ -18,6 +19,8 @@ type FormTaskProps = {
 };
 
 export default function FormTask({ onSubmit }: FormTaskProps) {
+  const [open, setOpen] = useState(false); // Estado para controlar a abertura/fechamento do diálogo
+
   const form = useForm<z.infer<typeof schema>>({
     resolver: zodResolver(schema),
     defaultValues: {
@@ -29,8 +32,21 @@ export default function FormTask({ onSubmit }: FormTaskProps) {
     },
   });
 
+  const handleSubmit = async (values: z.infer<typeof schema>) => {
+    await onSubmit(values); // Executa a função de submit passada via props
+    setOpen(false); // Fecha o diálogo após o envio
+    form.reset(); // Limpa os campos do formulário
+  };
+
+  const handleOpenChange = (isOpen: boolean) => {
+    setOpen(isOpen);
+    if (!isOpen) {
+      form.reset(); // Limpa os campos do formulário quando o diálogo é fechado
+    }
+  };
+
   return (
-    <Dialog>
+    <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>
         <Button className="w-1/12">+ Nova Tarefa</Button>
       </DialogTrigger>
@@ -42,7 +58,7 @@ export default function FormTask({ onSubmit }: FormTaskProps) {
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+          <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
             <FormField
               control={form.control}
               name="titulo"
