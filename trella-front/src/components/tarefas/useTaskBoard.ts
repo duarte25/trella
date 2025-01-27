@@ -66,6 +66,25 @@ export const useTaskBoard = (id: string) => {
     },
   });
 
+  const deleteTaskMutation = useMutation({
+    mutationFn: (taskId: string) => {
+      return fetchApi<null, TarefaResponse>({
+        route: `/tarefas/${taskId}`,
+        method: 'DELETE',
+        token: token,
+      });
+    },
+    onSuccess: (_, taskId) => {
+      const updatedColumns = { ...columns };
+      Object.keys(updatedColumns).forEach((key) => {
+        updatedColumns[key as keyof StatusColumns] = updatedColumns[key as keyof StatusColumns].filter(
+          (task) => task._id !== taskId
+        );
+      });
+      setColumns(updatedColumns);
+    },
+  });
+
   const onDragEnd = (result: DropResult) => {
     const { destination, source } = result;
     if (!destination) {
@@ -103,6 +122,15 @@ export const useTaskBoard = (id: string) => {
     mutation.mutate(updatedTask);
   };
 
+  const handleEditTask = (task: Tarefa) => {
+    console.log('Editar tarefa:', task);
+    // Implemente a lógica de edição aqui
+  };
+
+  const handleDeleteTask = (taskId: string) => {
+    deleteTaskMutation.mutate(taskId);
+  };
+
   useEffect(() => {
     if (data) {
       // Reinicialize as colunas com base nos dados obtidos
@@ -131,5 +159,7 @@ export const useTaskBoard = (id: string) => {
         data_final: format(values.data_final, "yyyy-MM-dd"),
       });
     },
+    handleEditTask,
+    handleDeleteTask,
   };
 };

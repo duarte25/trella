@@ -11,8 +11,7 @@ type InformacoesBoardProps = {
 
 export default function InformacoesBoard({ params }: InformacoesBoardProps) {
   const { id } = React.use(params);
-  const { columns, isLoading, isError, error, onDragEnd, handleCreateTask } = useTaskBoard(id);
-
+  const { columns, isLoading, isError, error, onDragEnd, handleCreateTask, handleEditTask, handleDeleteTask} = useTaskBoard(id);
   if (isLoading) {
     return <p>Carregando...</p>;
   }
@@ -23,7 +22,12 @@ export default function InformacoesBoard({ params }: InformacoesBoardProps) {
   return (
     <div className="flex flex-col gap-5">
       <FormTask onSubmit={handleCreateTask} />
-      <TaskBoard columns={columns} onDragEnd={onDragEnd} />
+      <TaskBoard
+        columns={columns}
+        onDragEnd={onDragEnd}
+        onEdit={handleEditTask}
+        onDelete={handleDeleteTask}
+      />
     </div>
   );
 }
