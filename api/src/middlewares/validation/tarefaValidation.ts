@@ -86,4 +86,28 @@ export default class TarefaValidation {
 
         return next();
     }
+    
+    static async deleteTarefaValidate(req: Request, res: Response, next: NextFunction): Promise<Response | void> {
+        let val = new Validator(req.params);
+
+        await val.validate("id",
+            v.required(),
+            v.mongooseID(),
+            v.toMongooseObj({ model: Tarefas, query: { _id: req.params.id } })
+        );
+
+        if (val.anyErrors()) return sendError(res, 404, val.getErrors());
+
+        // const board = val.getValue("id");
+
+        // const tokenDecoded = req.decodedToken;
+        // const userId = tokenDecoded?.id;
+        // const responsavelStr = String(board.responsavel);
+
+        // if (userId !== responsavelStr) {
+        //     return sendError(res, 403, "Sem permissão para deletar essa board.");
+        // }
+
+        return next();
+    }
 }

@@ -12,6 +12,6 @@ router
     .get("/tarefas", AuthMiddleware, wrapException(TarefaController.listarTarefa))
     // .get("/tarefas/:id", AuthMiddleware, BoardValidation.listarIDBoardValidate, wrapException(BoardController.listarBoardID))
     .patch("/tarefas/:id", AuthMiddleware, TarefaValidation.AlterarTarefaValidate, wrapException(TarefaController.AlterarTarefas))
-    // .delete("/tarefas/:id", AuthMiddleware, BoardValidation.deleteBoardValidate, wrapException(BoardController.deletarBoard));
+    .delete("/tarefas/:id", AuthMiddleware, TarefaValidation.deleteTarefaValidate, wrapException(TarefaController.deletarTarefa));
 
 export default router;
