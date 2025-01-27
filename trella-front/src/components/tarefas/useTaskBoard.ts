@@ -43,14 +43,23 @@ export const useTaskBoard = (id: string) => {
   });
 
   const createTaskMutation = useMutation({
-    mutationFn: (taskData: Partial<Tarefa>) => {
-      return fetchApi<Partial<Tarefa>, TarefaResponse>({
+    mutationFn: async (taskData: Partial<Tarefa>) => {
+      const response = await fetchApi<Partial<Tarefa>, TarefaResponse>({
         route: '/tarefas',
         method: 'POST',
         token: token,
         data: taskData,
       });
-      
+  
+      if (response.error) {
+        handleErrorMessage({
+          errors: response.errors,
+          title: 'Erro ao criar tarefa',
+          form: undefined, 
+        });
+      }
+  
+      return response;
     },
     onSuccess: async () => {
       // Faz um novo fetch para atualizar todas as tarefas após a edição
@@ -75,8 +84,8 @@ export const useTaskBoard = (id: string) => {
   });
 
   const mutationEditar = useMutation({
-    mutationFn: (taskData: Partial<Tarefa> & { _id: string }) => {
-      return fetchApi<Partial<Tarefa>, TarefaResponse>({
+    mutationFn: async (taskData: Partial<Tarefa> & { _id: string }) => {
+      const response = await fetchApi<Partial<Tarefa>, TarefaResponse>({
         route: `/tarefas/${taskData._id}`,
         method: 'PATCH',
         token: token,
@@ -88,6 +97,16 @@ export const useTaskBoard = (id: string) => {
           data_final: taskData.data_final,
         },
       });
+
+      if (response.error) {
+        handleErrorMessage({
+          errors: response.errors,
+          title: 'Erro ao atualizar',
+          form: undefined, 
+        });
+      }
+
+      return response;
     },
     onSuccess: async () => {
       // Faz um novo fetch para atualizar todas as tarefas após a edição
@@ -96,6 +115,15 @@ export const useTaskBoard = (id: string) => {
         method: 'GET',
         token: token,
       });
+
+      if (response.error) {
+        handleErrorMessage({
+          errors: response.errors,
+          title: 'Erro ao atualizar board',
+          form: undefined, 
+        });
+      }
+
       const newColumns: StatusColumns = {
         Open: [],
         Fazendo: [],
@@ -113,23 +141,43 @@ export const useTaskBoard = (id: string) => {
 
 
   const mutation = useMutation({
-    mutationFn: (updatedTask: { _id: string; status: string }) => {
-      return fetchApi<{ status: string }, TarefaResponse>({
+    mutationFn: async (updatedTask: { _id: string; status: string }) => {
+      const response = await fetchApi<{ status: string }, TarefaResponse>({
         route: `/tarefas/${updatedTask._id}`,
         method: "PATCH",
         token: token,
         data: { status: updatedTask.status },
       });
+
+      if (response.error) {
+        handleErrorMessage({
+          errors: response.errors,
+          title: 'Erro ao atualizar status de tarefa',
+          form: undefined, 
+        });
+      }
+
+      return response;
     },
   });
 
   const deleteTaskMutation = useMutation({
-    mutationFn: (taskId: string) => {
-      return fetchApi<null, TarefaResponse>({
+    mutationFn: async (taskId: string) => {
+      const response = await fetchApi<null, TarefaResponse>({
         route: `/tarefas/${taskId}`,
         method: 'DELETE',
         token: token,
       });
+
+      if (response.error) {
+        handleErrorMessage({
+          errors: response.errors,
+          title: 'Erro ao deletar tarefa',
+          form: undefined, 
+        });
+      }
+
+      return response;
     },
     onSuccess: (_, taskId) => {
       const updatedColumns = { ...columns };
