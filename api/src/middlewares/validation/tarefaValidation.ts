@@ -60,7 +60,7 @@ export default class TarefaValidation {
         await val.validate("titulo", v.optional(), v.trim(), v.validateLength({ max: 200 }));
         await val.validate("descricao", v.optional(), v.trim(), v.validateLength({ max: 554 }));
 
-        await val.validate("status", v.required(), v.enum({ values: Object.values(StatusTarefas) }));
+        await val.validate("status", v.optional(), v.enum({ values: Object.values(StatusTarefas) }));
 
         await val.validate("responsavel", v.optional(), v.mongooseID(), v.exists({
             model: Usuario,
