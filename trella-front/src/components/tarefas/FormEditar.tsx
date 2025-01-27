@@ -22,7 +22,7 @@ type FormTaskProps = {
   onOpenChange: (isOpen: boolean) => void;
 };
 
-export default function FormEditar({ onSubmit, initialValues, isEdit = true, open, onOpenChange }: FormTaskProps) {
+export default function FormEditar({ onSubmit, initialValues, open, onOpenChange }: FormTaskProps) {
   const form = useForm<z.infer<typeof schema>>({
     resolver: zodResolver(schema),
     defaultValues: initialValues || {
