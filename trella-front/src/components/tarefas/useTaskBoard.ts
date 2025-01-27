@@ -32,9 +32,6 @@ export const useTaskBoard = (id: string) => {
         method: "GET",
         token: token,
       });
-      // if (response.error) {
-      //   throw new Error(response.message || "Erro ao carregar os dados da board");
-      // }
       return response.data;
     },
   });
@@ -51,6 +48,32 @@ export const useTaskBoard = (id: string) => {
     onSuccess: (data) => {
       const updatedColumns = { ...columns };
       updatedColumns.Open.push(data.data);
+      setColumns(updatedColumns);
+    },
+  });
+
+  const mutationEditar = useMutation({
+    mutationFn: (taskData: Partial<Tarefa> & { _id: string }) => {
+      return fetchApi<Partial<Tarefa>, TarefaResponse>({
+        route: `/tarefas/${taskData._id}`,
+        method: 'PATCH',
+        token: token,
+        data: {
+          titulo: taskData.titulo,
+          descricao: taskData.descricao,
+          responsavel: taskData.responsavel,
+          data_inicial: taskData.data_inicial,
+          data_final: taskData.data_final,
+        },
+      });
+    },
+    onSuccess: (data) => {
+      const updatedColumns = { ...columns };
+      Object.keys(updatedColumns).forEach((key) => {
+        updatedColumns[key as keyof StatusColumns] = updatedColumns[key as keyof StatusColumns].map(
+          (task) => (task._id === data.data._id ? data.data : task)
+        );
+      });
       setColumns(updatedColumns);
     },
   });
@@ -106,11 +129,11 @@ export const useTaskBoard = (id: string) => {
       setColumns(newColumns);
       return;
     }
-    // Movendo de uma coluna para outra
+
     const startTasks = Array.from(startColumn);
     const finishTasks = Array.from(finishColumn);
     const [movedTask] = startTasks.splice(source.index, 1);
-    const updatedTask = { _id: movedTask._id, status: destination.droppableId }; // Atualizar o status da tarefa
+    const updatedTask = { _id: movedTask._id, status: destination.droppableId };
     finishTasks.splice(destination.index, 0, { ...movedTask, status: destination.droppableId });
     const newColumns = {
       ...columns,
@@ -118,13 +141,18 @@ export const useTaskBoard = (id: string) => {
       [destination.droppableId]: finishTasks,
     };
     setColumns(newColumns);
-    // Atualiza o status da tarefa no banco de dados
     mutation.mutate(updatedTask);
   };
 
   const handleEditTask = (task: Tarefa) => {
-    console.log('Editar tarefa:', task);
-    // Implemente a lógica de edição aqui
+    mutationEditar.mutate({
+      _id: task._id,
+      titulo: task.titulo,
+      descricao: task.descricao,
+      responsavel: task.responsavel,
+      data_inicial: format(task.data_inicial, "yyyy-MM-dd"),
+      data_final: format(task.data_final, "yyyy-MM-dd"),
+    });
   };
 
   const handleDeleteTask = (taskId: string) => {
@@ -133,7 +161,6 @@ export const useTaskBoard = (id: string) => {
 
   useEffect(() => {
     if (data) {
-      // Reinicialize as colunas com base nos dados obtidos
       const newColumns = { ...columns };
       data.data.forEach((task: Tarefa) => {
         newColumns[task.status as keyof StatusColumns].push(task);

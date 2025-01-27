@@ -1,4 +1,4 @@
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { TarefaSchemas } from "@/schemas/TarefaSchemas";
@@ -8,17 +8,21 @@ import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useForm } from "react-hook-form";
+import { useEffect } from "react";
 import { format } from "date-fns";
 import * as z from "zod";
-import { useState, useEffect } from "react";
+
 const schema = TarefaSchemas.criar;
+
 type FormTaskProps = {
   onSubmit: (values: z.infer<typeof schema>) => void;
   initialValues?: z.infer<typeof schema>;
   isEdit?: boolean;
+  open: boolean;
+  onOpenChange: (isOpen: boolean) => void;
 };
-export default function FormEditar({ onSubmit, initialValues, isEdit = false }: FormTaskProps) {
-  const [open, setOpen] = useState(false);
+
+export default function FormEditar({ onSubmit, initialValues, isEdit = true, open, onOpenChange }: FormTaskProps) {
   const form = useForm<z.infer<typeof schema>>({
     resolver: zodResolver(schema),
     defaultValues: initialValues || {
@@ -29,32 +33,26 @@ export default function FormEditar({ onSubmit, initialValues, isEdit = false }: 
       data_final: new Date(),
     },
   });
+
   useEffect(() => {
     if (initialValues) {
       form.reset(initialValues);
     }
   }, [initialValues, form]);
+
   const handleSubmit = async (values: z.infer<typeof schema>) => {
     await onSubmit(values);
-    setOpen(false);
+    onOpenChange(false);
     form.reset();
   };
-  const handleOpenChange = (isOpen: boolean) => {
-    setOpen(isOpen);
-    if (!isOpen) {
-      form.reset();
-    }
-  };
+
   return (
-    <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogTrigger asChild>
-        <Button className="w-1/12">{isEdit ? "Editar Tarefa" : "+ Nova Tarefa"}</Button>
-      </DialogTrigger>
+    <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>{isEdit ? "Editar Tarefa" : "Criar Nova Tarefa"}</DialogTitle>
+          <DialogTitle>Editar Tarefa</DialogTitle>
           <DialogDescription>
-            {isEdit ? "Edite os detalhes da tarefa." : "Adicione uma nova tarefa para gerenciar seus projetos."}
+            Edite os detalhes da tarefa.
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>
