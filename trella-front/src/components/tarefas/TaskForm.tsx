@@ -10,15 +10,24 @@ import { Input } from "@/components/ui/input";
 import { useForm } from "react-hook-form";
 import { format } from "date-fns";
 import * as z from "zod";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useContext } from "react";
+import ComboboxAPI from "../ComboboxAPI";
+import { AuthContext } from "@/contexts/AuthContext";
+import { Usuario } from "@/api/models/Usuario";
+import { fetchApi } from "@/api/services/fetchApi";
+import UsuarioOptions from "../ComboboxOptions/usuarioOptions";
+
 const schema = TarefaSchemas.criar;
+
 type FormTaskProps = {
   onSubmit: (values: z.infer<typeof schema>) => void;
   initialValues?: z.infer<typeof schema>;
   isEdit?: boolean;
 };
+
 export default function FormTask({ onSubmit, initialValues, isEdit = false }: FormTaskProps) {
   const [open, setOpen] = useState(false);
+
   const form = useForm<z.infer<typeof schema>>({
     resolver: zodResolver(schema),
     defaultValues: initialValues || {
@@ -29,13 +38,14 @@ export default function FormTask({ onSubmit, initialValues, isEdit = false }: Fo
       data_final: new Date(),
     },
   });
+
   useEffect(() => {
     if (initialValues) {
       form.reset(initialValues);
     }
   }, [initialValues, form]);
   const handleSubmit = async (values: z.infer<typeof schema>) => {
-    await onSubmit(values);
+    onSubmit(values);
     setOpen(false);
     form.reset();
   };
@@ -45,6 +55,33 @@ export default function FormTask({ onSubmit, initialValues, isEdit = false }: Fo
       form.reset();
     }
   };
+
+  const { token } = useContext(AuthContext);
+
+  // Estado para armazenar a lista de usuários buscados da API
+  const [response, setResponse] = useState<Usuario[]>([]);
+
+  // Função para buscar os usuários da API
+  const buscarUsuarios = async () => {
+    if (!token) return;
+
+    const response = await fetchApi<undefined, { data: Usuario[] }>({
+      route: "/auth/profile",
+      method: "GET",
+      token: token,
+      nextOptions: {},
+    });
+
+    if (!response.error) {
+      setResponse(response.data.data); // Atualiza o estado com os usuários buscados
+    }
+  };
+
+  // Busca os usuários ao carregar o componente
+  useEffect(() => {
+    buscarUsuarios();
+  }, [token]);
+
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>
@@ -85,19 +122,34 @@ export default function FormTask({ onSubmit, initialValues, isEdit = false }: Fo
                 </FormItem>
               )}
             />
+
             <FormField
               control={form.control}
               name="responsavel"
               render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Responsável</FormLabel>
+                <FormItem data-test="combobox-responsavel" className="md:col-span-2 text-black">
+                  <FormLabel className="text-white" htmlFor="responsavel">Responsável</FormLabel>
                   <FormControl>
-                    <Input placeholder="Nome do responsável" {...field} />
+                    <ComboboxAPI
+                      route={"/auth/profile"}
+                      multipleOption={false}
+                      placeholderInputSearch={"Busque por nome ou cpf"}
+                      placeholderUnselected={"Selecione os usuários"}
+                      selecionado={response.filter((user) => field.value === user.id)} // Filtra o usuário selecionado
+                      setSelecionado={(value: Usuario | Usuario[] | undefined) => {
+                        // Verifica se o valor é um único usuário e pega o ID
+                        const id = value && !Array.isArray(value) ? value.id : undefined;
+                        field.onChange(id); // Atualiza field.value com o ID
+                      }}
+                      selectedField={(selecionado: Usuario) => selecionado?.nome}
+                      renderOption={(dados: Usuario) => <UsuarioOptions dados={dados} />}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
+
             <FormField
               control={form.control}
               name="data_inicial"

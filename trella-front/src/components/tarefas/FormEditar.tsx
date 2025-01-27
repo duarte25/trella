@@ -8,9 +8,14 @@ import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useForm } from "react-hook-form";
-import { useEffect } from "react";
+import { useEffect, useContext, useState } from "react";
 import { format } from "date-fns";
 import * as z from "zod";
+import ComboboxAPI from "../ComboboxAPI";
+import { AuthContext } from "@/contexts/AuthContext";
+import { Usuario } from "@/api/models/Usuario";
+import { fetchApi } from "@/api/services/fetchApi";
+import UsuarioOptions from "../ComboboxOptions/usuarioOptions";
 
 const schema = TarefaSchemas.criar;
 
@@ -36,7 +41,6 @@ export default function FormEditar({ onSubmit, initialValues, open, onOpenChange
 
   useEffect(() => {
     if (initialValues) {
-    console.log("INITIAL", initialValues)
       form.reset({
         ...initialValues,
         data_inicial: initialValues.data_inicial ? new Date(initialValues.data_inicial) : new Date(),
@@ -50,6 +54,32 @@ export default function FormEditar({ onSubmit, initialValues, open, onOpenChange
     onOpenChange(false);
     form.reset();
   };
+
+  const { token } = useContext(AuthContext);
+
+  // Estado para armazenar a lista de usuários buscados da API
+  const [response, setResponse] = useState<Usuario[]>([]);
+
+  // Função para buscar os usuários da API
+  const buscarUsuarios = async () => {
+    if (!token) return;
+
+    const response = await fetchApi<undefined, { data: Usuario[] }>({
+      route: "/auth/profile",
+      method: "GET",
+      token: token,
+      nextOptions: {},
+    });
+
+    if (!response.error) {
+      setResponse(response.data.data); // Atualiza o estado com os usuários buscados
+    }
+  };
+
+  // Busca os usuários ao carregar o componente
+  useEffect(() => {
+    buscarUsuarios();
+  }, [token]);
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -92,10 +122,23 @@ export default function FormEditar({ onSubmit, initialValues, open, onOpenChange
               control={form.control}
               name="responsavel"
               render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Responsável</FormLabel>
+                <FormItem data-test="combobox-responsavel" className="md:col-span-2 text-black">
+                  <FormLabel className="text-white" htmlFor="responsavel">Responsável</FormLabel>
                   <FormControl>
-                    <Input placeholder="Nome do responsável" {...field} />
+                    <ComboboxAPI
+                      route={"/auth/profile"}
+                      multipleOption={false}
+                      placeholderInputSearch={"Busque por nome ou cpf"}
+                      placeholderUnselected={"Selecione os usuários"}
+                      selecionado={response.filter((user) => field.value === user.id)} // Filtra o usuário selecionado
+                      setSelecionado={(value: Usuario | Usuario[] | undefined) => {
+                        // Verifica se o valor é um único usuário e pega o ID
+                        const id = value && !Array.isArray(value) ? value.id : undefined;
+                        field.onChange(id); // Atualiza field.value com o ID
+                      }}
+                      selectedField={(selecionado: Usuario) => selecionado?.nome}
+                      renderOption={(dados: Usuario) => <UsuarioOptions dados={dados} />}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

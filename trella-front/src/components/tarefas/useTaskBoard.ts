@@ -45,10 +45,25 @@ export const useTaskBoard = (id: string) => {
         data: taskData,
       });
     },
-    onSuccess: (data) => {
-      const updatedColumns = { ...columns };
-      updatedColumns.Open.push(data.data);
-      setColumns(updatedColumns);
+    onSuccess: async () => {
+      // Faz um novo fetch para atualizar todas as tarefas após a edição
+      const response = await fetchApi<null, TarefaResponse>({
+        route: `/tarefas?board_id=${id}`,
+        method: 'GET',
+        token: token,
+      });
+      const newColumns: StatusColumns = {
+        Open: [],
+        Fazendo: [],
+        Feito: [],
+        Closed: [],
+      };
+
+      response.data.data.forEach((task: Tarefa) => {
+        newColumns[task.status as keyof StatusColumns].push(task);
+      });
+
+      setColumns(newColumns);
     },
   });
 
@@ -80,15 +95,15 @@ export const useTaskBoard = (id: string) => {
         Feito: [],
         Closed: [],
       };
-  
+
       response.data.data.forEach((task: Tarefa) => {
         newColumns[task.status as keyof StatusColumns].push(task);
       });
-  
+
       setColumns(newColumns);
     },
   });
-  
+
 
   const mutation = useMutation({
     mutationFn: (updatedTask: { _id: string; status: string }) => {

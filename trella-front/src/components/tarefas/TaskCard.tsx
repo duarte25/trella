@@ -23,7 +23,6 @@ export const TaskCard: React.FC<TaskCardProps> = ({ task, index, onEdit, onDelet
     responsavel: task.responsavel._id, 
   };
 
-  console.log("O valor inicial em task", initialValues)
   return (
     <Draggable draggableId={task._id} index={index}>
       {(provided) => (
