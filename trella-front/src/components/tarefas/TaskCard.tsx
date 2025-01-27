@@ -14,6 +14,7 @@ type TaskCardProps = {
 export const TaskCard: React.FC<TaskCardProps> = ({ task, index, onEdit, onDelete }) => {
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const handleEdit = (updatedTask: Tarefa) => {
+    // console.log("OLHA O EDit", updatedTask)
     onEdit(updatedTask);
     setIsEditDialogOpen(false);
   };
@@ -22,6 +23,8 @@ export const TaskCard: React.FC<TaskCardProps> = ({ task, index, onEdit, onDelet
     ...task,
     responsavel: task.responsavel._id, 
   };
+
+  console.log("O valor inicial em task", initialValues)
   return (
     <Draggable draggableId={task._id} index={index}>
       {(provided) => (
@@ -57,7 +60,7 @@ export const TaskCard: React.FC<TaskCardProps> = ({ task, index, onEdit, onDelet
           <h3>{task.titulo}</h3>
           <p>{task.descricao}</p>
           <FormEditar
-            onSubmit={handleEdit}
+            onSubmit={(values) => handleEdit({ ...values, _id: task._id })}
             initialValues={initialValues} // Passa os valores iniciais ajustados
             isEdit={true}
             open={isEditDialogOpen}

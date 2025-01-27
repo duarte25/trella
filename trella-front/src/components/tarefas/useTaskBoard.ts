@@ -145,6 +145,7 @@ export const useTaskBoard = (id: string) => {
   };
 
   const handleEditTask = (task: Tarefa) => {
+    // console.log("OLHA A TASK", task)
     mutationEditar.mutate({
       _id: task._id,
       titulo: task.titulo,

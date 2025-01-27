@@ -36,7 +36,12 @@ export default function FormEditar({ onSubmit, initialValues, open, onOpenChange
 
   useEffect(() => {
     if (initialValues) {
-      form.reset(initialValues);
+    console.log("INITIAL", initialValues)
+      form.reset({
+        ...initialValues,
+        data_inicial: initialValues.data_inicial ? new Date(initialValues.data_inicial) : new Date(),
+        data_final: initialValues.data_final ? new Date(initialValues.data_final) : new Date(),
+      });
     }
   }, [initialValues, form]);
 
