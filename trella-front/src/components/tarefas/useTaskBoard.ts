@@ -28,7 +28,7 @@ export const useTaskBoard = (id: string) => {
   const { isLoading, isError, error, data } = useQuery<TarefaResponseData>({
     queryKey: ["GetTarefas", id],
     queryFn: async () => {
-      const response = await fetchApi<null, TarefaResponse>({
+      const response = await fetchApi<null, TarefaResponseData>({
         route: `/tarefas?board_id=${id}`,
         method: "GET",
         token: token,
@@ -76,7 +76,6 @@ export const useTaskBoard = (id: string) => {
       };
 
       response.data.data.forEach((task: Tarefa) => {
-        console.log("OILHA A TASK", task)
         newColumns[task.status as keyof StatusColumns].push(task);
       });
 
@@ -245,12 +244,12 @@ export const useTaskBoard = (id: string) => {
   useEffect(() => {
     if (data) {
       const newColumns = { ...columns };
-      data?.data?.forEach((task: Tarefa) => {
+      data.data.forEach((task: Tarefa) => {
         newColumns[task.status as keyof StatusColumns].push(task);
       });
       setColumns(newColumns);
     }
-  }, [columns, data]);
+  }, [data]);
 
   type TaskValues = {
     titulo: string;

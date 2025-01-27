@@ -1,6 +1,6 @@
 import { Tarefa } from "../models/Tarefa";
 
-export interface TarefaResponseData {
+export  interface TarefaResponseData {
   data: Tarefa[]; 
   resultados: number;
   limite: number;
