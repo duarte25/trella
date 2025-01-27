@@ -14,5 +14,4 @@ export interface Tarefa {
     _version: number;
     createdAt: string;
     updatedAt: string;
-    id: string;
 }
