@@ -4,7 +4,7 @@ import { useQuery, useMutation } from '@tanstack/react-query';
 import { AuthContext } from '@/contexts/AuthContext';
 import { fetchApi } from '@/api/services/fetchApi';
 import { DropResult } from '@hello-pangea/dnd';
-import { Tarefa } from '@/api/models/Tarefa';
+import { Tarefa, TarefaResponsavel } from '@/api/models/Tarefa';
 import { useState, useEffect } from 'react';
 import { useContext } from 'react';
 import { format } from 'date-fns';
@@ -43,8 +43,8 @@ export const useTaskBoard = (id: string) => {
   });
 
   const createTaskMutation = useMutation({
-    mutationFn: async (taskData: Partial<Tarefa>) => {
-      const response = await fetchApi<Partial<Tarefa>, TarefaResponse>({
+    mutationFn: async (taskData: Partial<TarefaResponsavel>) => {
+      const response = await fetchApi<Partial<TarefaResponsavel>, TarefaResponse>({
         route: '/tarefas',
         method: 'POST',
         token: token,
@@ -63,7 +63,7 @@ export const useTaskBoard = (id: string) => {
     },
     onSuccess: async () => {
       // Faz um novo fetch para atualizar todas as tarefas após a edição
-      const response = await fetchApi<null, TarefaResponse>({
+      const response = await fetchApi<null, TarefaResponseData>({
         route: `/tarefas?board_id=${id}`,
         method: 'GET',
         token: token,
@@ -76,6 +76,7 @@ export const useTaskBoard = (id: string) => {
       };
 
       response.data.data.forEach((task: Tarefa) => {
+        console.log("OILHA A TASK", task)
         newColumns[task.status as keyof StatusColumns].push(task);
       });
 
@@ -110,7 +111,7 @@ export const useTaskBoard = (id: string) => {
     },
     onSuccess: async () => {
       // Faz um novo fetch para atualizar todas as tarefas após a edição
-      const response = await fetchApi<null, TarefaResponse>({
+      const response = await fetchApi<null, TarefaResponseData>({
         route: `/tarefas?board_id=${id}`,
         method: 'GET',
         token: token,
@@ -249,7 +250,15 @@ export const useTaskBoard = (id: string) => {
       });
       setColumns(newColumns);
     }
-  }, [data]);
+  }, [columns, data]);
+
+  type TaskValues = {
+    titulo: string;
+    descricao: string;
+    responsavel: string;
+    data_inicial: Date;
+    data_final: Date;
+  };
 
   return {
     columns,
@@ -257,10 +266,10 @@ export const useTaskBoard = (id: string) => {
     isError,
     error,
     onDragEnd,
-    handleCreateTask: (values: unknown) => {
+    handleCreateTask: (values: TaskValues) => {
       createTaskMutation.mutate({
         board_id: id,
-        status: 'Open',
+        status: "Open",
         titulo: values.titulo,
         descricao: values.descricao,
         responsavel: values.responsavel,
