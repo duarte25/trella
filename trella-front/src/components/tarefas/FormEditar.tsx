@@ -17,7 +17,7 @@ type FormTaskProps = {
   initialValues?: z.infer<typeof schema>;
   isEdit?: boolean;
 };
-export default function FormTask({ onSubmit, initialValues, isEdit = false }: FormTaskProps) {
+export default function FormEditar({ onSubmit, initialValues, isEdit = false }: FormTaskProps) {
   const [open, setOpen] = useState(false);
   const form = useForm<z.infer<typeof schema>>({
     resolver: zodResolver(schema),

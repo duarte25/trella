@@ -1,17 +1,26 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Draggable } from '@hello-pangea/dnd';
 import { Tarefa } from '@/api/models/Tarefa';
 import { DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenu } from '../ui/dropdown-menu';
 import { MoreHorizontal } from 'lucide-react';
-
+import FormTask from './TaskForm';
 type TaskCardProps = {
   task: Tarefa;
   index: number;
   onEdit: (task: Tarefa) => void;
   onDelete: (taskId: string) => void;
 };
-
 export const TaskCard: React.FC<TaskCardProps> = ({ task, index, onEdit, onDelete }) => {
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const handleEdit = (updatedTask: Tarefa) => {
+    onEdit(updatedTask);
+    setIsEditDialogOpen(false);
+  };
+  // Ajusta o objeto da tarefa para enviar o objeto completo do responsável
+  const initialValues = {
+    ...task,
+    responsavel: task.responsavel._id, // Envia o objeto completo do responsável
+  };
   return (
     <Draggable draggableId={task._id} index={index}>
       {(provided) => (
@@ -35,7 +44,7 @@ export const TaskCard: React.FC<TaskCardProps> = ({ task, index, onEdit, onDelet
               </button>
             </DropdownMenuTrigger>
             <DropdownMenuContent side="right" align="start">
-              <DropdownMenuItem onClick={() => onEdit(task)}>
+              <DropdownMenuItem onClick={() => setIsEditDialogOpen(true)}>
                 Editar
               </DropdownMenuItem>
               <DropdownMenuItem onClick={() => onDelete(task._id)}>
@@ -46,6 +55,13 @@ export const TaskCard: React.FC<TaskCardProps> = ({ task, index, onEdit, onDelet
           <p>Responsável: {task.responsavel.nome}</p>
           <h3>{task.titulo}</h3>
           <p>{task.descricao}</p>
+          <FormTask
+            onSubmit={handleEdit}
+            initialValues={initialValues} // Passa os valores iniciais ajustados
+            isEdit={true}
+            open={isEditDialogOpen}
+            onOpenChange={setIsEditDialogOpen}
+          />
         </div>
       )}
     </Draggable>

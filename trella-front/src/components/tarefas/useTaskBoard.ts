@@ -32,9 +32,9 @@ export const useTaskBoard = (id: string) => {
         method: "GET",
         token: token,
       });
-      if (response.error) {
-        throw new Error(response.message || "Erro ao carregar os dados da board");
-      }
+      // if (response.error) {
+      //   throw new Error(response.message || "Erro ao carregar os dados da board");
+      // }
       return response.data;
     },
   });
@@ -148,7 +148,7 @@ export const useTaskBoard = (id: string) => {
     isError,
     error,
     onDragEnd,
-    handleCreateTask: (values: any) => {
+    handleCreateTask: (values: unknown) => {
       createTaskMutation.mutate({
         board_id: id,
         status: 'Open',
