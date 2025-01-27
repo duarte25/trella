@@ -1,11 +1,12 @@
-import { useState, useEffect } from 'react';
-import { useQuery, useMutation } from '@tanstack/react-query';
-import { fetchApi } from '@/api/services/fetchApi';
-import { Tarefa } from '@/api/models/Tarefa';
-import { AuthContext } from '@/contexts/AuthContext';
-import { useContext } from 'react';
 import { TarefaResponse, TarefaResponseData } from '@/api/responses/TarefaResponse';
+import { handleErrorMessage } from '@/errors/handleErrorMessage';
+import { useQuery, useMutation } from '@tanstack/react-query';
+import { AuthContext } from '@/contexts/AuthContext';
+import { fetchApi } from '@/api/services/fetchApi';
 import { DropResult } from '@hello-pangea/dnd';
+import { Tarefa } from '@/api/models/Tarefa';
+import { useState, useEffect } from 'react';
+import { useContext } from 'react';
 import { format } from 'date-fns';
 
 export type StatusColumns = {
@@ -32,8 +33,13 @@ export const useTaskBoard = (id: string) => {
         method: "GET",
         token: token,
       });
+
+      if (response.error) {
+        handleErrorMessage({ errors: response.errors, form: undefined });
+      }
+
       return response.data;
-    },
+    }
   });
 
   const createTaskMutation = useMutation({
@@ -44,6 +50,7 @@ export const useTaskBoard = (id: string) => {
         token: token,
         data: taskData,
       });
+      
     },
     onSuccess: async () => {
       // Faz um novo fetch para atualizar todas as tarefas após a edição
@@ -189,7 +196,7 @@ export const useTaskBoard = (id: string) => {
   useEffect(() => {
     if (data) {
       const newColumns = { ...columns };
-      data.data.forEach((task: Tarefa) => {
+      data?.data?.forEach((task: Tarefa) => {
         newColumns[task.status as keyof StatusColumns].push(task);
       });
       setColumns(newColumns);

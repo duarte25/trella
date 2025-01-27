@@ -1,21 +1,21 @@
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import UsuarioOptions from "../ComboboxOptions/usuarioOptions";
+import { useState, useEffect, useContext } from "react";
 import { TarefaSchemas } from "@/schemas/TarefaSchemas";
-import { Calendar } from "@/components/ui/calendar";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { AuthContext } from "@/contexts/AuthContext";
+import { Calendar } from "@/components/ui/calendar";
 import { Textarea } from "@/components/ui/textarea";
+import { fetchApi } from "@/api/services/fetchApi";
 import { Button } from "@/components/ui/button";
+import { Usuario } from "@/api/models/Usuario";
 import { Input } from "@/components/ui/input";
 import { useForm } from "react-hook-form";
+import ComboboxAPI from "../ComboboxAPI";
 import { format } from "date-fns";
 import * as z from "zod";
-import { useState, useEffect, useContext } from "react";
-import ComboboxAPI from "../ComboboxAPI";
-import { AuthContext } from "@/contexts/AuthContext";
-import { Usuario } from "@/api/models/Usuario";
-import { fetchApi } from "@/api/services/fetchApi";
-import UsuarioOptions from "../ComboboxOptions/usuarioOptions";
 
 const schema = TarefaSchemas.criar;
 
@@ -73,7 +73,7 @@ export default function FormTask({ onSubmit, initialValues, isEdit = false }: Fo
     });
 
     if (!response.error) {
-      setResponse(response.data.data); // Atualiza o estado com os usuários buscados
+      setResponse(response.data.data); 
     }
   };
 

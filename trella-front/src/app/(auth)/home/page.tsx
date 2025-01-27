@@ -11,7 +11,7 @@ export default function Home() {
   const { token } = useContext(AuthContext);
 
   return (
-    <div>
+    <div className="px-2">
       <GetTableData
         TableComponent={DataTableBoards}
         querys={{ page: 1, limit: 10 }}
