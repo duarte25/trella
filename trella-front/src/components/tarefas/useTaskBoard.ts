@@ -67,16 +67,28 @@ export const useTaskBoard = (id: string) => {
         },
       });
     },
-    onSuccess: (data) => {
-      const updatedColumns = { ...columns };
-      Object.keys(updatedColumns).forEach((key) => {
-        updatedColumns[key as keyof StatusColumns] = updatedColumns[key as keyof StatusColumns].map(
-          (task) => (task._id === data.data._id ? data.data : task)
-        );
+    onSuccess: async () => {
+      // Faz um novo fetch para atualizar todas as tarefas após a edição
+      const response = await fetchApi<null, TarefaResponse>({
+        route: `/tarefas?board_id=${id}`,
+        method: 'GET',
+        token: token,
       });
-      setColumns(updatedColumns);
+      const newColumns: StatusColumns = {
+        Open: [],
+        Fazendo: [],
+        Feito: [],
+        Closed: [],
+      };
+  
+      response.data.data.forEach((task: Tarefa) => {
+        newColumns[task.status as keyof StatusColumns].push(task);
+      });
+  
+      setColumns(newColumns);
     },
   });
+  
 
   const mutation = useMutation({
     mutationFn: (updatedTask: { _id: string; status: string }) => {
@@ -145,7 +157,6 @@ export const useTaskBoard = (id: string) => {
   };
 
   const handleEditTask = (task: Tarefa) => {
-    // console.log("OLHA A TASK", task)
     mutationEditar.mutate({
       _id: task._id,
       titulo: task.titulo,

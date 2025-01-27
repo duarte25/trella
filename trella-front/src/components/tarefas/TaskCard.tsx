@@ -14,7 +14,6 @@ type TaskCardProps = {
 export const TaskCard: React.FC<TaskCardProps> = ({ task, index, onEdit, onDelete }) => {
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const handleEdit = (updatedTask: Tarefa) => {
-    // console.log("OLHA O EDit", updatedTask)
     onEdit(updatedTask);
     setIsEditDialogOpen(false);
   };
