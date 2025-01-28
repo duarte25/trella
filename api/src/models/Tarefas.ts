@@ -42,7 +42,8 @@ const tarefasSchema: Schema<ITarefas> = new mongoose.Schema(
         },
         descricao: {
             type: String,
-            maxlength: 554
+            maxlength: 554,
+            required: true,
         },
         responsavel: {
             type: mongoose.Schema.Types.ObjectId,

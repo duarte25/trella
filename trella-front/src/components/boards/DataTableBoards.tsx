@@ -34,14 +34,14 @@ export default function DataTableBoards({ dados, onUpdate }: DataTableBoardsProp
       if (response.error) {
         handleErrorMessage({ errors: response.errors });
       } else {
-        // Chama a função onUpdate para refazer a solicitação GET e atualizar os dados
+
         onUpdate();
       }
   
     } catch (error) {
       console.error("Error deleting board:", error);
     } finally {
-      setOpen(false); // Fecha o alerta depois de tentar deletar
+      setOpen(false); 
     }
   };
 
@@ -83,9 +83,9 @@ export default function DataTableBoards({ dados, onUpdate }: DataTableBoardsProp
                     </button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent side="right" align="start">
-                    <DropdownMenuItem onClick={() => console.log(`Edit Project ${board?._id}`)}>
+                    {/* <DropdownMenuItem onClick={() => console.log(`Edit Project ${board?._id}`)}>
                       Editar Board
-                    </DropdownMenuItem>
+                    </DropdownMenuItem> */}
                     <DropdownMenuItem>
                       <span className="cursor-pointer text-red-500" onClick={() => handleOpenDeleteDialog(board)}>
                         Deletar Board
@@ -99,7 +99,6 @@ export default function DataTableBoards({ dados, onUpdate }: DataTableBoardsProp
         </TableBody>
       </Table>
 
-      {/* AlertDialog fora do DropdownMenu */}
       <AlertDialog open={open} onOpenChange={setOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>

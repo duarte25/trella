@@ -8,6 +8,7 @@ import { Tarefa, TarefaResponsavel } from '@/api/models/Tarefa';
 import { useState, useEffect } from 'react';
 import { useContext } from 'react';
 import { format } from 'date-fns';
+import { Console } from 'console';
 
 export type StatusColumns = {
   Open: Tarefa[];
@@ -227,11 +228,12 @@ export const useTaskBoard = (id: string) => {
   };
 
   const handleEditTask = (task: Tarefa) => {
+    console.log("OLHA A TASk ", task)
     mutationEditar.mutate({
       _id: task._id,
       titulo: task.titulo,
       descricao: task.descricao,
-      responsavel: task.responsavel,
+      responsavel: task.responsavel._id,
       data_inicial: format(task.data_inicial, "yyyy-MM-dd"),
       data_final: format(task.data_final, "yyyy-MM-dd"),
     });
@@ -244,7 +246,7 @@ export const useTaskBoard = (id: string) => {
   useEffect(() => {
     if (data) {
       const newColumns = { ...columns };
-      data.data.forEach((task: Tarefa) => {
+      data?.data?.forEach((task: Tarefa) => {
         newColumns[task.status as keyof StatusColumns].push(task);
       });
       setColumns(newColumns);

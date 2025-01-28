@@ -62,7 +62,6 @@ export default function ComboboxAPI({
       }
     });
   };
-
   const selectOption = (option: Usuario) => {
     if (multipleOption) {
       setSelecionado([...(selecionado as Usuario[]), option]);
@@ -71,7 +70,6 @@ export default function ComboboxAPI({
       setOpen(false);
     }
   };
-
   const removeOption = (option: Usuario) => {
     if (multipleOption) {
       setSelecionado(
@@ -82,24 +80,20 @@ export default function ComboboxAPI({
       setOpen(false);
     }
   };
-
   const removeOptions = () => {
     setSelecionado(multipleOption ? [] : undefined);
   };
-
   const findOption = (dados: Usuario): boolean => {
     if (multipleOption) {
       return (selecionado as Usuario[]).some((item) => item.id === dados.id);
     }
     return (selecionado as Usuario)?.id === dados.id;
   };
-
   useEffect(() => {
     const timeout = setTimeout(() => getApi(), 500);
     return () => clearTimeout(timeout);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [inputValue]);
-
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
@@ -107,51 +101,45 @@ export default function ComboboxAPI({
           variant="outline"
           role="combobox"
           aria-expanded={open}
-          className="flex w-full p-1 px-3 min-h-9 h-auto justify-between"
+          className="flex w-full p-1 px-3 min-h-9 h-auto justify-between items-center"
         >
-          {Array.isArray(selecionado) && selecionado.length > 0 ? (
-            <div className="flex flex-wrap gap-2">
-              {selecionado.map((item) => (
-                <div
-                  key={item.id} // Use id as the unique key
-                  className="flex items-center pl-2 pr-5 py-1 bg-slate-200 rounded"
-                >
-                  <span className="font-semibold text-sm">{item.nome}</span>
-                  <span
-                    role="button"
-                    tabIndex={0}
-                    aria-label="Remover opção"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      removeOption(item);
-                    }}
+          <div className="flex-grow">
+            {Array.isArray(selecionado) && selecionado.length > 0 ? (
+              <div className="flex flex-wrap gap-2">
+                {selecionado.map((item) => (
+                  <div
+                    key={item.id} // Use id as the unique key
+                    className="flex items-center pl-2 pr-5 py-1 bg-slate-200 rounded"
                   >
-                    <X className="hover:text-white" />
-                  </span>
-                </div>
-              ))}
-            </div>
-          ) : selecionado && !Array.isArray(selecionado) ? (
-            <span>{selecionado.nome}</span>
-          ) : (
-            <>
+                    <span className="font-semibold text-sm">{item.nome}</span>
+                    <span
+                      role="button"
+                      tabIndex={0}
+                      aria-label="Remover opção"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        removeOption(item);
+                      }}
+                    >
+                      <X className="hover:text-white" />
+                    </span>
+                  </div>
+                ))}
+              </div>
+            ) : selecionado && !Array.isArray(selecionado) ? (
+              <span>{selecionado.nome}</span>
+            ) : (
               <span>{placeholderUnselected}</span>
+            )}
+          </div>
+          <div className="flex-shrink-0">
+            {selecionado && (
+              <></>
+            )}
+            {!selecionado || Array.isArray(selecionado) ? (
               <ChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-            </>
-          )}
-          {selecionado && (
-            <span
-              role="button"
-              tabIndex={0}
-              aria-label={Array.isArray(selecionado) ? "Remover tudo" : "Remover"}
-              onClick={(e) => {
-                e.stopPropagation();
-                removeOptions();
-              }}
-            >
-              <X className="hover:text-white" />
-            </span>
-          )}
+            ) : null}
+          </div>
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-[--radix-popover-trigger-width] p-0">

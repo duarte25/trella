@@ -13,7 +13,7 @@ export default class TarefaValidation {
         // const userId = tokenDecoded?.id;
 
         await val.validate("titulo", v.required(), v.trim(), v.validateLength({ max: 200 }));
-        await val.validate("descricao", v.optional(), v.trim(), v.validateLength({ max: 554 }));
+        await val.validate("descricao", v.required(), v.trim(), v.validateLength({ max: 554 }));
 
         // Usando o enum StatusTarefas para validar o campo "status"
         await val.validate("status", v.required(), v.enum({ values: Object.values(StatusTarefas) }));
@@ -52,8 +52,8 @@ export default class TarefaValidation {
 
         const tarefa = val.getValue("id");
 
-        const tokenDecoded = req.decodedToken;
-        const userId = tokenDecoded?.id;
+        // const tokenDecoded = req.decodedToken;
+        // const userId = tokenDecoded?.id;
 
         val = new Validator(req.body);
 

@@ -24,8 +24,13 @@ export const TaskCard: React.FC<TaskCardProps> = ({ task, index, onEdit, onDelet
     ...task,
     responsavel: task.responsavel._id,
     data_inicial: new Date(task.data_inicial),
-    data_final: new Date(task.data_final), 
+    data_final: new Date(task.data_final),
   };
+
+  function formatDateToMonthYear(date: Date): string {
+    const options: Intl.DateTimeFormatOptions = { year: 'numeric', month: 'long' };
+    return date.toLocaleDateString('pt-BR', options).replace(/ de /g, '/').replace(/\.$/, '');
+  }
 
   return (
     <Draggable draggableId={task._id} index={index}>
@@ -60,16 +65,22 @@ export const TaskCard: React.FC<TaskCardProps> = ({ task, index, onEdit, onDelet
           </div>
           <h3 className="text-base font-semibold text-white">{task.titulo}</h3>
           <p className="text-sm text-gray-200">{task.descricao}</p>
+          <div>
+            <div className="text-sm text-gray-200 flex flex-row gap-4">
+              <h2>{formatDateToMonthYear(new Date(task.data_inicial))}</h2>
+              <h2>{formatDateToMonthYear(new Date(task.data_final))}</h2>
+            </div>
+          </div>
           <FormEditar
-              onSubmit={(values) => {
-                // Cria um objeto completo da tarefa com todas as propriedades obrigatórias
-                const updatedTask: Tarefa = {
-                  ...task, // Mantém as propriedades existentes da tarefa
-                  ...values, // Atualiza com os novos valores do formulário
-                  responsavel: { _id: values.responsavel, nome: task.responsavel.nome }, 
-                };
-                handleEdit(updatedTask);
-              }}
+            onSubmit={(values) => {
+              // Cria um objeto completo da tarefa com todas as propriedades obrigatórias
+              const updatedTask: Tarefa = {
+                ...task, // Mantém as propriedades existentes da tarefa
+                ...values, // Atualiza com os novos valores do formulário
+                responsavel: { _id: values.responsavel, nome: task.responsavel.nome },
+              };
+              handleEdit(updatedTask);
+            }}
             initialValues={initialValues}
             isEdit={true}
             open={isEditDialogOpen}
