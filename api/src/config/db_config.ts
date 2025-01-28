@@ -6,7 +6,9 @@ dotenv.config();
 
 // const bancoUrl: string | undefined = "mongodb://root:panelaNotificacaoDB@localhost:27100/panelanotificacaodb?authSource=admin";
 
-const bancoUrl = "mongodb://root:panelaNotificacaoDB@localhost:27018/panelanotificacaodb?authSource=admin";
+// const bancoUrl = "mongodb://root:panelaNotificacaoDB@banco-mongo:27018/panelanotificacaodb?authSource=admin";
+
+const bancoUrl = process.env.DB_URL;
 
 // Função para conectar ao banco de dados
 async function conectarBanco(): Promise<void> {
