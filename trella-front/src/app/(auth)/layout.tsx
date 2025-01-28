@@ -1,12 +1,12 @@
-import { AuthProvider } from "@/contexts/AuthContext";
-import { getCookie } from "@/actions/handleCookie";
-import { redirect } from "next/navigation";
-import { jwtDecode } from "jwt-decode"
-import ReactQueryProvider from "@/providers/ReactQueryProvider";
-import { Usuario } from "@/api/models/Usuario";
-import Appbar from "@/components/Appbar";
 import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
+import ReactQueryProvider from "@/providers/ReactQueryProvider";
+import { AuthProvider } from "@/contexts/AuthContext";
 import { Separator } from "@/components/ui/separator";
+import { getCookie } from "@/actions/handleCookie";
+import { Usuario } from "@/api/models/Usuario";
+import { redirect } from "next/navigation";
+import Appbar from "@/components/Appbar";
+import { jwtDecode } from "jwt-decode"
 
 export default async function LayoutAuth({
     children,

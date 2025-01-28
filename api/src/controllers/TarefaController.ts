@@ -19,7 +19,7 @@ interface ICreateTarefaRequest {
 interface QueryParams {
     pagina?: string;
     limite?: string;
-    board?: string;
+    board_id?: string;
 }
 
 export default class TarefaController {
@@ -27,12 +27,12 @@ export default class TarefaController {
     static async listarTarefa(req: Request<{}, {}, {}, QueryParams>, res: Response): Promise<Response> {
         const pagina = parseInt(req.query.pagina as string) || 1;
         const limite = parseInt(req.query.limite as string) || paginateOptions.limit;
-        const { board } = req.query;
+        const { board_id } = req.query;
 
         // Filtros para a pesquisa
         const filtros: Record<string, any> = {};
 
-        if (board) filtros.board = board;
+        if (board_id) filtros.board_id = board_id;
 
         // Pegando o ID do usuário do token JWT
         const token = req.headers.authorization;
@@ -43,9 +43,9 @@ export default class TarefaController {
         const tokenDecoded: any = jwtDecode(token);
         const userId = tokenDecoded.id;
 
-        filtros.$or = [
-            { "responsavel": userId },
-        ];
+        // filtros.$or = [
+        //     { "responsavel": userId },
+        // ];
 
         const tarefa = await Tarefas.paginate(
             filtros,
@@ -88,5 +88,17 @@ export default class TarefaController {
         await Tarefas.findByIdAndUpdate(tarefa._id, tarefa);
 
         return res.status(200).json({ data: tarefa })
+    }
+
+    static async deletarTarefa(req: Request, res: Response): Promise<Response> {
+        const { id } = req.params;
+
+        const findTarefa = await Tarefas.findByIdAndDelete(id);
+
+        if (!findTarefa) {
+            return res.status(404).json({ data: [], error: true, code: 404, message: messages.httpCodes[404], errors: [messages.validationGeneric.mascCamp("Tarefa")] });
+        }
+
+        return sendResponse(res, 200, {});
     }
 }

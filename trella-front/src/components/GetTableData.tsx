@@ -8,7 +8,7 @@ import { useQuery } from "@tanstack/react-query";
 import React, { useState } from "react";
 
 interface GetTableDataProps {
-  TableComponent: React.ComponentType<{ dados: BoardResponseData }>;
+  TableComponent: React.ComponentType<{ dados: BoardResponseData; onUpdate: () => void }>;
   querys: Record<string, string | number>;
   fetchTag: string;
   schema?: unknown;

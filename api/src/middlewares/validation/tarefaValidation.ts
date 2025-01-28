@@ -9,8 +9,8 @@ export default class TarefaValidation {
 
     static async CriarTarefaValidate(req: Request, res: Response, next: NextFunction): Promise<Response | void> {
         const val = new Validator(req.body);
-        const tokenDecoded = req.decodedToken;
-        const userId = tokenDecoded?.id;
+        // const tokenDecoded = req.decodedToken;
+        // const userId = tokenDecoded?.id;
 
         await val.validate("titulo", v.required(), v.trim(), v.validateLength({ max: 200 }));
         await val.validate("descricao", v.optional(), v.trim(), v.validateLength({ max: 554 }));
@@ -60,7 +60,7 @@ export default class TarefaValidation {
         await val.validate("titulo", v.optional(), v.trim(), v.validateLength({ max: 200 }));
         await val.validate("descricao", v.optional(), v.trim(), v.validateLength({ max: 554 }));
 
-        await val.validate("status", v.required(), v.enum({ values: Object.values(StatusTarefas) }));
+        await val.validate("status", v.optional(), v.enum({ values: Object.values(StatusTarefas) }));
 
         await val.validate("responsavel", v.optional(), v.mongooseID(), v.exists({
             model: Usuario,
@@ -83,6 +83,30 @@ export default class TarefaValidation {
         req.validateResult = {
             tarefa: tarefa
         };
+
+        return next();
+    }
+    
+    static async deleteTarefaValidate(req: Request, res: Response, next: NextFunction): Promise<Response | void> {
+        let val = new Validator(req.params);
+
+        await val.validate("id",
+            v.required(),
+            v.mongooseID(),
+            v.toMongooseObj({ model: Tarefas, query: { _id: req.params.id } })
+        );
+
+        if (val.anyErrors()) return sendError(res, 404, val.getErrors());
+
+        // const board = val.getValue("id");
+
+        // const tokenDecoded = req.decodedToken;
+        // const userId = tokenDecoded?.id;
+        // const responsavelStr = String(board.responsavel);
+
+        // if (userId !== responsavelStr) {
+        //     return sendError(res, 403, "Sem permissão para deletar essa board.");
+        // }
 
         return next();
     }

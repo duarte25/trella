@@ -66,11 +66,14 @@ export default function Appbar() {
 
                 <SidebarMenuItem>
                   <SidebarMenuButton asChild>
+                    <Link href={"/home"}>Home</Link>
+                  </SidebarMenuButton>
+                  <SidebarMenuButton asChild>
                     <Link href={"/criar-board"}>Criar Board</Link>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               </SidebarMenu>
-               
+
             </SidebarMenu>
           </SidebarGroup>
         </SidebarContent>

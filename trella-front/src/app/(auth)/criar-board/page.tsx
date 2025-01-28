@@ -87,7 +87,7 @@ export default function CriarBoard() {
                                     <CardTitle>
                                         Criar Brand
                                     </CardTitle>
-                                    <CardDescription>
+                                    <CardDescription className="text-gray-200">
                                         <b>Crie sua ideia e faça suas tarefas utilizando nosso sistema.</b>
                                     </CardDescription>
                                 </CardHeader>

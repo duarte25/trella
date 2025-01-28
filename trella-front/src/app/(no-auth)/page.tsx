@@ -12,6 +12,7 @@ import { createSession } from "@/actions/session";
 import { Input } from "@/components/ui/input";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
+import { toast } from "react-toastify";
 import Image from "next/image";
 import Link from "next/link";
 import z from "zod";
@@ -35,10 +36,13 @@ export default function LoginPage() {
         if (response.error) {
             handleErrorMessage<typeof data>({ errors: response.errors, form: form });
         } else {
-            await createSession(response.data.token);
 
+            await createSession(response.data.token);
             router.replace("/");
-        }
+
+            // Exibe a notificação de sucesso
+            toast.success("Você foi logado com sucesso.");
+        }   
     }
 
     return (

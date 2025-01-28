@@ -10,7 +10,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { useContext, useEffect, useState, useTransition } from "react";
+import { JSX, useContext, useEffect, useState, useTransition } from "react";
 import { Check, ChevronDown, Search, X } from "lucide-react";
 import { AuthContext } from "@/contexts/AuthContext";
 import { fetchApi } from "@/api/services/fetchApi";
@@ -26,6 +26,8 @@ interface ComboboxAPIProps {
   placeholderInputSearch: string;
   placeholderUnselected: string;
   multipleOption?: boolean;
+  selectedField: (selecionado: Usuario) => string; 
+  renderOption: (dados: Usuario) => JSX.Element; 
 }
 
 export default function ComboboxAPI({

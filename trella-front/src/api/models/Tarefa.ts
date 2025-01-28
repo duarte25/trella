@@ -15,3 +15,13 @@ export interface Tarefa {
     createdAt: string;
     updatedAt: string;
 }
+
+export interface TarefaResponsavel {
+    board_id: string;
+    status: string;
+    titulo: string;
+    descricao: string;
+    responsavel: string,
+    data_inicial: string;
+    data_final: string;
+}
