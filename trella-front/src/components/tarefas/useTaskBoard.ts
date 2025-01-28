@@ -227,12 +227,11 @@ export const useTaskBoard = (id: string) => {
   };
 
   const handleEditTask = (task: Tarefa) => {
-    console.log("OLHA A TAREFA ", task)
     mutationEditar.mutate({
       _id: task._id,
       titulo: task.titulo,
       descricao: task.descricao,
-      responsavel: task.responsavel._id,
+      responsavel: task.responsavel,
       data_inicial: format(task.data_inicial, "yyyy-MM-dd"),
       data_final: format(task.data_final, "yyyy-MM-dd"),
     });

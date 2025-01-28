@@ -26,7 +26,7 @@ export default function InformacoesBoard({ params }: InformacoesBoardProps) {
 
 
   return (
-    <div className="flex flex-col gap-5 p-2 bg-zinc-800 h-screen">
+    <div className="flex flex-col gap-5 p-2 bg-zinc-900 h-screen">
       {isLoading && (
         <div className="fixed inset-0 flex items-center justify-center bg-white z-[10]">
           <Loader2 className="h-16 w-16 animate-spin text-gray-500" />
