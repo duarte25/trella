@@ -9,8 +9,8 @@ export default class TarefaValidation {
 
     static async CriarTarefaValidate(req: Request, res: Response, next: NextFunction): Promise<Response | void> {
         const val = new Validator(req.body);
-        const tokenDecoded = req.decodedToken;
-        const userId = tokenDecoded?.id;
+        // const tokenDecoded = req.decodedToken;
+        // const userId = tokenDecoded?.id;
 
         await val.validate("titulo", v.required(), v.trim(), v.validateLength({ max: 200 }));
         await val.validate("descricao", v.optional(), v.trim(), v.validateLength({ max: 554 }));

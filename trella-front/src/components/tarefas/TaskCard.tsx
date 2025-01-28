@@ -18,10 +18,13 @@ export const TaskCard: React.FC<TaskCardProps> = ({ task, index, onEdit, onDelet
     onEdit(updatedTask);
     setIsEditDialogOpen(false);
   };
+
   // Ajusta o objeto da tarefa para enviar o objeto completo do responsável
   const initialValues = {
     ...task,
     responsavel: task.responsavel._id,
+    data_inicial: new Date(task.data_inicial),
+    data_final: new Date(task.data_final), 
   };
 
   return (
@@ -58,7 +61,15 @@ export const TaskCard: React.FC<TaskCardProps> = ({ task, index, onEdit, onDelet
           <h3 className="text-base font-semibold text-white">{task.titulo}</h3>
           <p className="text-sm text-gray-200">{task.descricao}</p>
           <FormEditar
-            onSubmit={(values) => handleEdit({ ...values, _id: task._id })}
+              onSubmit={(values) => {
+                // Cria um objeto completo da tarefa com todas as propriedades obrigatórias
+                const updatedTask: Tarefa = {
+                  ...task, // Mantém as propriedades existentes da tarefa
+                  ...values, // Atualiza com os novos valores do formulário
+                  responsavel: { _id: values.responsavel, nome: task.responsavel.nome }, 
+                };
+                handleEdit(updatedTask);
+              }}
             initialValues={initialValues}
             isEdit={true}
             open={isEditDialogOpen}

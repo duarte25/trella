@@ -42,12 +42,11 @@ const tarefasSchema: Schema<ITarefas> = new mongoose.Schema(
         },
         descricao: {
             type: String,
-            minlength: 1,
             maxlength: 554
         },
         responsavel: {
             type: mongoose.Schema.Types.ObjectId,
-            ref: 'Usuario',
+            ref: 'Usuarios',
             required: true,
         },
         data_inicial: {

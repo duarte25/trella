@@ -22,12 +22,12 @@ const boardSchema: Schema<IBoard> = new mongoose.Schema(
         },
         usuarios: {
             type: [mongoose.Schema.Types.ObjectId], 
-            ref: 'Usuario',
+            ref: 'Usuarios',
             required: true,
         },
         responsavel: {
             type: mongoose.Schema.Types.ObjectId,
-            ref: 'Usuario', 
+            ref: 'Usuarios', 
             required: true,
         }
     },

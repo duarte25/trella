@@ -8,8 +8,10 @@ let quantidade: number = 50; // Defina a quantidade como um número
 // Conectando ao banco de dados
 await db.conectarBanco();
 
-// Usando o método getCollection para acessar a coleção
-await db.getCollection("usuarios").deleteMany({});  // Adicione {} para garantir que seja um objeto vazio
+
+await db.getCollection("usuarios").deleteMany(); 
+await db.getCollection("boards").deleteMany(); 
+await db.getCollection("tarefas").deleteMany(); 
 
 // Chama a função para inserir os usuários
 await usuarioSeed(quantidade);

@@ -52,6 +52,6 @@ usuarioSchema.index({ nome: "text" }, { default_language: "pt" });
 usuarioSchema.plugin(paginate);
 
 // Criando o modelo de usuário com o tipo IUsuario e PaginateModel
-const Usuario = mongoose.model<IUsuario, PaginateModel<IUsuario>>("Usuario", usuarioSchema);
+const Usuario = mongoose.model<IUsuario, PaginateModel<IUsuario>>("Usuarios", usuarioSchema);
 
 export default Usuario;
