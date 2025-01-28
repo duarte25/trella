@@ -4,7 +4,7 @@ import app from "./src/app";
 // import getSwaggerOptions from './src/docs/config/head'; // Assumindo que você tenha um arquivo .ts
 
 // Definir a porta
-const port: number = Number(process.env.PORT) || 3022;
+const port: number = Number(process.env.PORT) || 3020;
 
 // Configuração do Swagger
 // const swaggerOptions = getSwaggerOptions();

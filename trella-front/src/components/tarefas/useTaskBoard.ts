@@ -37,7 +37,6 @@ export const useTaskBoard = (id: string) => {
       if (response.error) {
         handleErrorMessage({ errors: response.errors, form: undefined });
       }
-
       return response.data;
     }
   });

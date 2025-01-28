@@ -4,7 +4,7 @@ services:
       context: ./trella-front
     container_name: trella-front
     ports:
-      - "3020:3020"
+      - "3022:3022"
     networks:
       - app-network
 
@@ -13,7 +13,7 @@ services:
       context: ./api
     container_name: api
     ports:
-      - "3022:3022"
+      - "3020:3020"
     networks:
       - app-network
 
@@ -22,7 +22,7 @@ services:
     container_name: banco-mongo
     image: mongo:6.0.7
     ports:
-      - ${DB_EXPOSE_PORT}:27018
+      - ${DB_EXPOSE_PORT}:27017
     volumes:
       - "${DB_VOLUME:-vol-db}:/data/db"
     environment:

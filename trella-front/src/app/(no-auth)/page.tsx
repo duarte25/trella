@@ -2,7 +2,6 @@
 
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { handleErrorMessage } from "@/errors/handleErrorMessage";
 import { LoginResponse } from "@/api/responses/LoginResponse";
 import ButtonLoading from "@/components/ButtonLoading";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -34,7 +33,7 @@ export default function LoginPage() {
         const response = await fetchApi<typeof data, LoginResponse>({ route: "/auth/login", method: "POST", data: data });
 
         if (response.error) {
-            handleErrorMessage<typeof data>({ errors: response.errors, form: form });
+            toast.error("Usuário ou senha incorretos!");
         } else {
 
             await createSession(response.data.token);

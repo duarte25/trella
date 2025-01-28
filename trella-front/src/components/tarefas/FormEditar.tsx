@@ -71,6 +71,7 @@ export default function FormEditar({ onSubmit, initialValues, open, onOpenChange
       token: token,
       nextOptions: {},
     });
+    
 
     if (!response.error) {
       setResponse(response.data.data); // Atualiza o estado com os usuários buscados
@@ -80,7 +81,8 @@ export default function FormEditar({ onSubmit, initialValues, open, onOpenChange
   // Busca os usuários ao carregar o componente
   useEffect(() => {
     buscarUsuarios();
-  }, [buscarUsuarios]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [token]);
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>

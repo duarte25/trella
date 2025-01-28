@@ -13,7 +13,7 @@ RUN cp .env.example .env
 
 RUN npm run build
 
-EXPOSE 3022
+EXPOSE 3020
 
 # Ponto de partida
-CMD ["node", "dist/server.ts"] 
+CMD ["npm", "start"] 

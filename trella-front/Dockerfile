@@ -12,8 +12,8 @@ RUN cp .env.example .env
 
 RUN npm run build
 
-EXPOSE 3020
+EXPOSE 3022
 
-ENV PORT=3020
+ENV PORT=3022
 
 CMD ["npm", "start"]
