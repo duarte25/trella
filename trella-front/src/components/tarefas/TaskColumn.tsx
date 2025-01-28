@@ -17,14 +17,14 @@ export const TaskColumn: React.FC<TaskColumnProps> = ({ columnId, tasks, onEdit,
         <div
           ref={provided.innerRef}
           {...provided.droppableProps}
+          className="flex flex-col gap-4 border border-gray-400 rounded-lg "
           style={{
             width: '22%',
-            padding: '10px',
-            border: '1px solid #ccc',
-            borderRadius: '5px',
           }}
         >
-          <h2>{columnId}</h2>
+          <div className="border-b border-gray-400">
+            <h2 className=" text-white font-bold m-2">{columnId}</h2>
+          </div>
           {Array.isArray(tasks) && tasks.length > 0 ? (
             tasks.map((task, index) => (
               <TaskCard

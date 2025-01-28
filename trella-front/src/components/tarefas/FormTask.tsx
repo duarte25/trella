@@ -22,10 +22,9 @@ const schema = TarefaSchemas.criar;
 type FormTaskProps = {
   onSubmit: (values: z.infer<typeof schema>) => void;
   initialValues?: z.infer<typeof schema>;
-  isEdit?: boolean;
 };
 
-export default function FormTask({ onSubmit, initialValues, isEdit = false }: FormTaskProps) {
+export default function FormTask({ onSubmit, initialValues }: FormTaskProps) {
   const [open, setOpen] = useState(false);
 
   const form = useForm<z.infer<typeof schema>>({
@@ -80,18 +79,19 @@ export default function FormTask({ onSubmit, initialValues, isEdit = false }: Fo
   // Busca os usuários ao carregar o componente
   useEffect(() => {
     buscarUsuarios();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [token]);
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>
-        <Button className="w-1/12">{isEdit ? "Editar Tarefa" : "+ Nova Tarefa"}</Button>
+        <Button className="w-1/12">{"+ Nova Tarefa"}</Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>{isEdit ? "Editar Tarefa" : "Criar Nova Tarefa"}</DialogTitle>
+          <DialogTitle>{"Criar Nova Tarefa"}</DialogTitle>
           <DialogDescription>
-            {isEdit ? "Edite os detalhes da tarefa." : "Adicione uma nova tarefa para gerenciar seus projetos."}
+            {"Adicione uma nova tarefa para gerenciar seus projetos."}
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>

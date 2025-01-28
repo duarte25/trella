@@ -1,7 +1,8 @@
-import React from 'react';
 import { DragDropContext, DropResult } from '@hello-pangea/dnd';
-import { TaskColumn } from './TaskColumn';
 import { StatusColumns } from './useTaskBoard';
+import { Tarefa } from '@/api/models/Tarefa';
+import { TaskColumn } from './TaskColumn';
+import React from 'react';
 
 type TaskBoardProps = {
   columns: StatusColumns;
@@ -13,7 +14,7 @@ type TaskBoardProps = {
 export const TaskBoard: React.FC<TaskBoardProps> = ({ columns, onDragEnd, onEdit, onDelete }) => {
   return (
     <DragDropContext onDragEnd={onDragEnd}>
-      <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+      <div className="flex justify-between">
         {Object.entries(columns).map(([columnId, tasks]) => (
           <TaskColumn
             key={columnId}

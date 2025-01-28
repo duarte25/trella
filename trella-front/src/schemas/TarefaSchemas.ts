@@ -8,8 +8,8 @@ const isValidObjectId = (value: string) => /^[a-fA-F0-9]{24}$/.test(value);
 
 export class TarefaSchemas {
     static criar = z.object({
-        titulo: z.string().min(1).max(200).trim(),
-        descricao: z.string().min(1).max(554).trim(),
+        titulo: z.string().min(3).max(200).trim(),
+        descricao: z.string().max(554).trim(),
         responsavel: z.string()
             .refine(isValidObjectId, {
                 message: "O responsável deve ser um ObjectId válido.",

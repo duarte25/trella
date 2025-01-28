@@ -1,8 +1,8 @@
-import React, { useState } from 'react';
-import { Draggable } from '@hello-pangea/dnd';
-import { Tarefa } from '@/api/models/Tarefa';
 import { DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenu } from '../ui/dropdown-menu';
+import { Draggable } from '@hello-pangea/dnd';
 import { MoreHorizontal } from 'lucide-react';
+import { Tarefa } from '@/api/models/Tarefa';
+import React, { useState } from 'react';
 import FormEditar from './FormEditar';
 
 type TaskCardProps = {
@@ -11,6 +11,7 @@ type TaskCardProps = {
   onEdit: (task: Tarefa) => void;
   onDelete: (taskId: string) => void;
 };
+
 export const TaskCard: React.FC<TaskCardProps> = ({ task, index, onEdit, onDelete }) => {
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const handleEdit = (updatedTask: Tarefa) => {
@@ -20,7 +21,7 @@ export const TaskCard: React.FC<TaskCardProps> = ({ task, index, onEdit, onDelet
   // Ajusta o objeto da tarefa para enviar o objeto completo do responsável
   const initialValues = {
     ...task,
-    responsavel: task.responsavel._id, 
+    responsavel: task.responsavel._id,
   };
 
   return (
@@ -30,36 +31,35 @@ export const TaskCard: React.FC<TaskCardProps> = ({ task, index, onEdit, onDelet
           ref={provided.innerRef}
           {...provided.draggableProps}
           {...provided.dragHandleProps}
+          className="border border-gray-300 rounded-lg p-2 m-4 bg-zinc-700 shadow-md"
           style={{
-            marginBottom: '10px',
-            padding: '10px',
-            border: '1px solid #ddd',
-            borderRadius: '5px',
-            backgroundColor: '#f9f9f9',
             ...provided.draggableProps.style,
           }}
         >
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <button className="p-1 rounded hover:bg-gray-200 focus:outline-none">
-                <MoreHorizontal className="w-4 h-4" />
-              </button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent side="right" align="start">
-              <DropdownMenuItem onClick={() => setIsEditDialogOpen(true)}>
-                Editar
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => onDelete(task._id)}>
-                <span className="cursor-pointer text-red-500">Deletar</span>
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-          <p>Responsável: {task.responsavel.nome}</p>
-          <h3>{task.titulo}</h3>
-          <p>{task.descricao}</p>
+          <div className="flex flex-row items-center gap-2">
+
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button className="p-2 rounded hover:bg-gray-200 focus:outline-none">
+                  <MoreHorizontal className="w-5 h-5 text-gray-100" />
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent side="right" align="start">
+                <DropdownMenuItem onClick={() => setIsEditDialogOpen(true)}>
+                  Editar
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => onDelete(task._id)}>
+                  <span className="cursor-pointer text-red-500">Deletar</span>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+            <p className="text-sm text-gray-100">{task.responsavel.nome}</p>
+          </div>
+          <h3 className="text-base font-semibold text-white">{task.titulo}</h3>
+          <p className="text-sm text-gray-200">{task.descricao}</p>
           <FormEditar
             onSubmit={(values) => handleEdit({ ...values, _id: task._id })}
-            initialValues={initialValues} // Passa os valores iniciais ajustados
+            initialValues={initialValues}
             isEdit={true}
             open={isEditDialogOpen}
             onOpenChange={setIsEditDialogOpen}
