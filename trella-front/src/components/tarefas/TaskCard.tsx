@@ -34,7 +34,7 @@ export const TaskCard: React.FC<TaskCardProps> = ({ task, index, onEdit, onDelet
           ref={provided.innerRef}
           {...provided.draggableProps}
           {...provided.dragHandleProps}
-          className="border border-gray-300 rounded-lg p-2 m-4 bg-zinc-700 shadow-md"
+          className="border border-gray-500 rounded-lg p-2 m-4 bg-zinc-700 shadow-md"
           style={{
             ...provided.draggableProps.style,
           }}
