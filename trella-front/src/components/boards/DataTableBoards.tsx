@@ -3,7 +3,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { BoardResponseData } from "@/api/responses/BoardResponse";
-import { handleErrorMessage } from "@/errors/handleErrorMessage";
+import { handleErrorMessages } from "@/errors/handleErrorMessage";
 import { AuthContext } from "@/contexts/AuthContext";
 import { Eye, MoreHorizontal } from "lucide-react";
 import { fetchApi } from "@/api/services/fetchApi";
@@ -23,25 +23,35 @@ export default function DataTableBoards({ dados, onUpdate }: DataTableBoardsProp
 
   const handleDelete = async () => {
     if (!boardToDelete) return;
-  
+
     try {
       const response = await fetchApi({
         route: `/boards/${boardToDelete._id}`,
         method: "DELETE",
         token: token,
       });
-  
+
       if (response.error) {
-        handleErrorMessage({ errors: response.errors });
+        const errorMessages = response.errors.map((error) => {
+          // Verifica se o erro é um objeto ApiError ou uma string
+          if (typeof error === "string") {
+            return error;
+          } else {
+            return error.message;
+          }
+        });
+
+        // Passa o array de strings para handleErrorMessages
+        handleErrorMessages(errorMessages);
       } else {
 
         onUpdate();
       }
-  
+
     } catch (error) {
       console.error("Error deleting board:", error);
     } finally {
-      setOpen(false); 
+      setOpen(false);
     }
   };
 

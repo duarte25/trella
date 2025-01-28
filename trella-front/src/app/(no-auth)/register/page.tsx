@@ -2,7 +2,7 @@
 
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { handleErrorMessage } from "@/errors/handleErrorMessage";
+import { handleErrorMessages } from "@/errors/handleErrorMessage";
 import ButtonLoading from "@/components/ButtonLoading";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { AuthContext } from "@/contexts/AuthContext";
@@ -42,7 +42,18 @@ export default function RegisterPage() {
         const response = await fetchApi<typeof data, Usuario>({ route: "/auth/register", method: "POST", data: data });
 
         if (response.error) {
-            handleErrorMessage<typeof data>({ errors: response.errors, form: form });
+
+            const errorMessages = response.errors.map((error) => {
+                // Verifica se o erro é um objeto ApiError ou uma string
+                if (typeof error === "string") {
+                    return error; 
+                } else {
+                    return error.message; 
+                }
+            });
+    
+            // Passa o array de strings para handleErrorMessages
+            handleErrorMessages(errorMessages);
         } else {
             router.replace("/");
         }

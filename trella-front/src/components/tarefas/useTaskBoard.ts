@@ -1,5 +1,5 @@
 import { TarefaResponse, TarefaResponseData } from '@/api/responses/TarefaResponse';
-import { handleErrorMessage } from '@/errors/handleErrorMessage';
+import { handleErrorMessages } from '@/errors/handleErrorMessage';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { AuthContext } from '@/contexts/AuthContext';
 import { fetchApi } from '@/api/services/fetchApi';
@@ -35,7 +35,17 @@ export const useTaskBoard = (id: string) => {
       });
 
       if (response.error) {
-        handleErrorMessage({ errors: response.errors, form: undefined });
+        const errorMessages = response.errors.map((error) => {
+          // Verifica se o erro é um objeto ApiError ou uma string
+          if (typeof error === "string") {
+            return error;
+          } else {
+            return error.message;
+          }
+        });
+
+        // Passa o array de strings para handleErrorMessages
+        handleErrorMessages(errorMessages);
       }
       return response.data;
     }
@@ -49,15 +59,21 @@ export const useTaskBoard = (id: string) => {
         token: token,
         data: taskData,
       });
-  
+
       if (response.error) {
-        handleErrorMessage({
-          errors: response.errors,
-          title: 'Erro ao criar tarefa',
-          form: undefined, 
+        const errorMessages = response.errors.map((error) => {
+          // Verifica se o erro é um objeto ApiError ou uma string
+          if (typeof error === "string") {
+            return error;
+          } else {
+            return error.message;
+          }
         });
+
+        // Passa o array de strings para handleErrorMessages
+        handleErrorMessages(errorMessages);
       }
-  
+
       return response;
     },
     onSuccess: async () => {
@@ -98,11 +114,17 @@ export const useTaskBoard = (id: string) => {
       });
 
       if (response.error) {
-        handleErrorMessage({
-          errors: response.errors,
-          title: 'Erro ao atualizar',
-          form: undefined, 
+        const errorMessages = response.errors.map((error) => {
+          // Verifica se o erro é um objeto ApiError ou uma string
+          if (typeof error === "string") {
+            return error;
+          } else {
+            return error.message;
+          }
         });
+
+        // Passa o array de strings para handleErrorMessages
+        handleErrorMessages(errorMessages);
       }
 
       return response;
@@ -116,11 +138,17 @@ export const useTaskBoard = (id: string) => {
       });
 
       if (response.error) {
-        handleErrorMessage({
-          errors: response.errors,
-          title: 'Erro ao atualizar board',
-          form: undefined, 
+        const errorMessages = response.errors.map((error) => {
+          // Verifica se o erro é um objeto ApiError ou uma string
+          if (typeof error === "string") {
+            return error;
+          } else {
+            return error.message;
+          }
         });
+
+        // Passa o array de strings para handleErrorMessages
+        handleErrorMessages(errorMessages);
       }
 
       const newColumns: StatusColumns = {
@@ -149,11 +177,17 @@ export const useTaskBoard = (id: string) => {
       });
 
       if (response.error) {
-        handleErrorMessage({
-          errors: response.errors,
-          title: 'Erro ao atualizar status de tarefa',
-          form: undefined, 
+        const errorMessages = response.errors.map((error) => {
+          // Verifica se o erro é um objeto ApiError ou uma string
+          if (typeof error === "string") {
+            return error;
+          } else {
+            return error.message;
+          }
         });
+
+        // Passa o array de strings para handleErrorMessages
+        handleErrorMessages(errorMessages);
       }
 
       return response;
@@ -169,11 +203,17 @@ export const useTaskBoard = (id: string) => {
       });
 
       if (response.error) {
-        handleErrorMessage({
-          errors: response.errors,
-          title: 'Erro ao deletar tarefa',
-          form: undefined, 
+        const errorMessages = response.errors.map((error) => {
+          // Verifica se o erro é um objeto ApiError ou uma string
+          if (typeof error === "string") {
+            return error;
+          } else {
+            return error.message;
+          }
         });
+
+        // Passa o array de strings para handleErrorMessages
+        handleErrorMessages(errorMessages);
       }
 
       return response;
@@ -252,7 +292,7 @@ export const useTaskBoard = (id: string) => {
       });
       setColumns(newColumns);
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [data]);
 
   type TaskValues = {

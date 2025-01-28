@@ -1,33 +1,28 @@
-import { FieldValues, UseFormReturn } from "react-hook-form";
-import { toast } from "@/hooks/use-toast";
-import { ApiError } from "@/types/api";
+import { toast } from "react-toastify";
 
-type Props<T extends FieldValues> = {
-  title?: string;
-  form?: UseFormReturn<T>;
-  errors: ApiError[];
-};
+/**
+ * Exibe uma lista de erros como toasts.
+ * @param errors Um array de strings contendo as mensagens de erro.
+ * @param options Opções adicionais para o toast (opcional).
+ */
+export function handleErrorMessages(errors: string[]) {
+  console.log("ERRORS", errors);
+  // Verifica se errors é um array de strings
+  if (!Array.isArray(errors)) {
+      console.error("Erro: O parâmetro 'errors' deve ser um array.");
+      return;
+  }
 
-export function handleErrorMessage<T extends FieldValues>({ errors, form, title }: Props<T>) {
   errors.forEach((error) => {
-    if (typeof error === 'string') {
-      // Se o erro for uma string simples
-      toast({
-        title: title ? title : undefined,
-        variant: "destructive",
-        description: error,
+      toast.error(error, {
+          position: "top-right",
+          autoClose: 5000, // Fecha automaticamente após 5 segundos
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "colored",
       });
-    } else if (typeof error === 'object' && error.path && form) {
-      // Se o erro for um objeto com path e form estiver disponível
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      form.setError(error.path as any, { type: "custom", message: error.message });
-    } else if (typeof error === 'object' && error.message) {
-      // Se o erro for um objeto sem path, apenas exibe a mensagem
-      toast({
-        title: title ? title : undefined,
-        variant: "destructive",
-        description: error.message,
-      });
-    }
   });
 }

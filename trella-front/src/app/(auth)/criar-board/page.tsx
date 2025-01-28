@@ -3,7 +3,7 @@
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import UsuarioOptions from "@/components/ComboboxOptions/usuarioOptions";
-import { handleErrorMessage } from "@/errors/handleErrorMessage";
+import { handleErrorMessages } from "@/errors/handleErrorMessage";
 import { BoardResponse } from "@/api/responses/BoardResponse";
 import { useContext, useEffect, useState } from "react";
 import ButtonLoading from "@/components/ButtonLoading";
@@ -62,7 +62,17 @@ export default function CriarBoard() {
         const response = await fetchApi<typeof data, BoardResponse>({ route: "/boards", method: "POST", data: data, token: token });
 
         if (response.error) {
-            handleErrorMessage<typeof data>({ errors: response.errors, form: form });
+            const errorMessages = response.errors.map((error) => {
+                // Verifica se o erro é um objeto ApiError ou uma string
+                if (typeof error === "string") {
+                    return error; 
+                } else {
+                    return error.message; 
+                }
+            });
+    
+            // Passa o array de strings para handleErrorMessages
+            handleErrorMessages(errorMessages);
         } else {
             router.replace("/");
         }
