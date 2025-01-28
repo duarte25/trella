@@ -65,16 +65,21 @@ export async function fetchApi<RequestData, ResponseData>({
 
     return responseData;
   } catch (error) {
-    console.log("Erro catch", error);
+
+    let errorMessage = "A aplicação falhou ao tentar realizar a requisição para o servidor";
+
+    if (error instanceof Error) {
+      errorMessage = error.message;
+    }
 
     return {
-      data: [],
+      data: [] as ResponseData,
       code: 500,
       error: true,
       message: "A aplicação falhou ao tentar realizar a requisição para o servidor",
       errors: [
         {
-          message: error?.message ?? "A aplicação falhou ao tentar realizar a requisição para o servidor",
+          message: errorMessage,
         },
       ],
     };

@@ -75,9 +75,15 @@ export const TaskCard: React.FC<TaskCardProps> = ({ task, index, onEdit, onDelet
             onSubmit={(values) => {
               // Cria um objeto completo da tarefa com todas as propriedades obrigatórias
               const updatedTask: Tarefa = {
-                ...task, // Mantém as propriedades existentes da tarefa
-                ...values, // Atualiza com os novos valores do formulário
-                responsavel: { _id: values.responsavel, nome: task.responsavel.nome },
+                ...task, 
+                ...values,
+                responsavel: {
+                  _id: values.responsavel,
+                  nome: task.responsavel.nome,
+                  email: task.responsavel.email || "",
+                },
+                data_inicial: values.data_inicial.toISOString(), 
+                data_final: values.data_final.toISOString(), 
               };
               handleEdit(updatedTask);
             }}

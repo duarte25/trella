@@ -4,7 +4,6 @@ import { FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/comp
 import { BoardSchemas } from "@/schemas/BoardSchemas";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Input } from "@/components/ui/input";
-import Filtros from "@/components/Filtros";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
@@ -16,7 +15,7 @@ interface FormBuscarBoardsProps {
   };
 }
 
-export default function FormBuscarBoard({ route, querys }: FormBuscarBoardsProps) {
+export default function FormBuscarBoard({ querys }: FormBuscarBoardsProps) {
   // Definindo o tipo do schema
   const schema = BoardSchemas.filtrarBoards;
 
@@ -29,10 +28,6 @@ export default function FormBuscarBoard({ route, querys }: FormBuscarBoardsProps
   });
 
   return (
-    <Filtros
-      route={route}
-      form={form}
-    >
       <FormField
         control={form.control}
         name="nome"
@@ -41,8 +36,8 @@ export default function FormBuscarBoard({ route, querys }: FormBuscarBoardsProps
             <FormLabel htmlFor="nome" data-test="label-data-nome">Nome</FormLabel>
             <FormControl>
               <Input
-                type="text" // Tipo correto para campos de texto
-                id="nome" // ID consistente com o nome do campo
+                type="text" 
+                id="nome"
                 {...field}
                 data-test="input-data-nome"
               />
@@ -51,6 +46,5 @@ export default function FormBuscarBoard({ route, querys }: FormBuscarBoardsProps
           </FormItem>
         )}
       />
-    </Filtros>
   );
 }

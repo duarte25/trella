@@ -9,7 +9,6 @@ const messages = {
         206: "Requisição bem sucedida, porém apenas parte do recurso foi retornada!",
         207: "Requisição bem sucedida, mas a resposta possui mais de um recurso associado!",
         208: "Requisição bem sucedida, mas o conteúdo retornado não é mais válido!",
-
         300: "Requisição bem sucedida, mas requisição tem múltiplas respostas possíveis, cliente deve escolher uma!",
         301: "O recurso solicitado foi movido permanentemente para um novo endereço!",
         302: "O recurso solicitado foi encontrado, mas foi movido temporariamente para um novo endereço!",
@@ -18,7 +17,6 @@ const messages = {
         305: "Recurso solicitado só está disponível por meio do proxy",
         307: "O recurso solicitado foi temporariamente movido para um novo endereço!",
         308: "O recurso solicitado foi permanentemente movido para um novo endereço!",
-
         400: "Requisição com sintaxe incorreta ou outros problemas!",
         401: "Cliente sem credenciais para acessar o recurso solicitado!",
         403: "Sem permissão para atender a requisição!",
@@ -33,23 +31,19 @@ const messages = {
         431: "Cabeçalhos da requisição são muito grandes!",
         451: "Acesso negado por motivos legais!",
         498: "Acesso negado devido o token ser inválido!",
-
         500: "Servidor encontrou um erro interno!",
         501: "Funcionalidade não suportada!",
         502: "O servidor atuando como gateway ou proxy recebeu uma resposta inválida!",
         503: "O servidor está temporariamente indisponível, em manutenção ou em sobrecarga!"
     },
-
     // Mensagens informativas
     info: {
         welcome: "Bem-vindo à nossa aplicação!",
-        userLoggedIn: (username: string) => `Usuário ${username} logado com sucesso!`,
+        userLoggedIn: (username) => `Usuário ${username} logado com sucesso!`,
     },
-
     success: {
         success: "Operação concluída com sucesso!",
     },
-
     error: {
         error: "Ocorreu um erro ao processar a solicitação!",
         serverError: "Erro interno do servidor, Tente novamente mais tarde!",
@@ -61,44 +55,42 @@ const messages = {
         externalServiceError: "Erro ao se comunicar com um serviço externo!",
         invalidApiKey: "Chave de API inválida!",
         operationCanceled: "Operação cancelada pelo usuário!",
-        resourceNotFound: (id: string) => `O campo ${id} não foi encontrado!`,
+        resourceNotFound: (id) => `O campo ${id} não foi encontrado!`,
         invalidID: "O ID informado deve estar em um formato válido (12 bytes)!"
     },
-
     // Mensagens de validação genéricas
     validationGeneric: {
-        fieldIsRequired: (fieldName: string) => {
+        fieldIsRequired: (fieldName) => {
             return { message: `O campo ${fieldName} é obrigatório!` };
         },
-        fieldIsRepeated: (fieldName: string) => {
+        fieldIsRepeated: (fieldName) => {
             return { message: `O campo ${fieldName} informado já está cadastrado!` };
         },
-        invalidInputFormatForField: (fieldName: string) => {
+        invalidInputFormatForField: (fieldName) => {
             return { message: `Formato de entrada inválido para o campo ${fieldName}!` };
         },
-        lessSum: (fieldName: string) => {
+        lessSum: (fieldName) => {
             return { message: `Valor menor que a data de hoje ${fieldName}!` };
         },
-        resourceInUse: (fieldName: string) => {
+        resourceInUse: (fieldName) => {
             return { message: `Recurso em uso em ${fieldName}!` };
         },
-        invalid: (fieldName: string) => {
+        invalid: (fieldName) => {
             return { message: `Valor informado em ${fieldName} é inválido!` };
         },
-        mascCamp: (campo: string) => {
+        mascCamp: (campo) => {
             return { message: `${campo} não encontrado!` };
         },
-        femCamp: (campo: string) => {
+        femCamp: (campo) => {
             return { message: `${campo} não encontrada!` };
         },
-        notFound: (fieldName: string) => {
+        notFound: (fieldName) => {
             return { message: `Nenhum registro encontrado com este ${fieldName}.` };
         },
-        mustBeOneOf: (fieldName: string, values: string[]) => {
+        mustBeOneOf: (fieldName, values) => {
             return { message: `O campo ${fieldName} deve ser um dos seguintes valores: ${values.join(", ")}` };
         }
     },
-
     // Mensagens de validação personalizadas
     customValidation: {
         invalidCPF: "CPF inválido, Verifique o formato e tente novamente!",
@@ -116,39 +108,32 @@ const messages = {
         itemCadastrado: "Item já foi conferido!",
         statusFinalizado: "Status finalizado.",
     },
-
     auth: {
         authenticationFailed: "Falha na autenticação! Credenciais inválidas!",
-        userNotFound: (userId: string) => `Usuário com ID ${userId} não encontrado!`,
-
+        userNotFound: (userId) => `Usuário com ID ${userId} não encontrado!`,
         invalidPermission: "Permissão insuficiente para executar a operação!",
-        duplicateEntry: (fieldName: string) => `Já existe um registro com o mesmo ${fieldName}!`,
-
+        duplicateEntry: (fieldName) => `Já existe um registro com o mesmo ${fieldName}!`,
         accountLocked: "Conta bloqueada! Entre em contato com o suporte!",
         invalidToken: "Token inválido, Faça login novamente!",
-
         timeoutError: "Tempo de espera excedido, Tente novamente mais tarde!",
         databaseConnectionError: "Erro de conexão com o banco de dados, Tente novamente mais tarde!",
-        emailAlreadyExists: (email: string) => `O endereço de e-mail ${email} já está em uso!`,
-
+        emailAlreadyExists: (email) => `O endereço de e-mail ${email} já está em uso!`,
         invalidCredentials: "Credenciais inválidas! Verifique seu usuário e senha!",
     },
 };
-
-export const sendError = (res: any, code: number, errors: any[] | object | string = []): any => {
-    let _errors: any[] | undefined = undefined;
-    
+export const sendError = (res, code, errors = []) => {
+    let _errors = undefined;
     if (Array.isArray(errors)) {
         _errors = errors;
-    } else if (typeof errors === "object" && errors !== undefined) {
-        _errors = [errors];
-    } else {
+    }
+    else if (typeof errors === "object" && errors !== undefined) {
         _errors = [errors];
     }
-
+    else {
+        _errors = [errors];
+    }
     // Verifica se o código é uma chave válida no objeto httpCodes
-    const httpMessage = messages.httpCodes[code as keyof typeof messages.httpCodes] || "Mensagem de erro desconhecida";
-    
+    const httpMessage = messages.httpCodes[code] || "Mensagem de erro desconhecida";
     return res.status(code).json({
         data: [],
         error: true,
@@ -157,11 +142,9 @@ export const sendError = (res: any, code: number, errors: any[] | object | strin
         errors: _errors,
     });
 };
-
-export const sendResponse = (res: any, code: number, resp: object = {}): any => {
+export const sendResponse = (res, code, resp = {}) => {
     // Verifica se o código é uma chave válida no objeto httpCodes
-    const httpMessage = messages.httpCodes[code as keyof typeof messages.httpCodes] || "Mensagem de sucesso desconhecida";
-
+    const httpMessage = messages.httpCodes[code] || "Mensagem de sucesso desconhecida";
     return res.status(code).json({
         ...{
             data: [],
@@ -172,5 +155,4 @@ export const sendResponse = (res: any, code: number, resp: object = {}): any => 
         }, ...resp
     });
 };
-
 export default messages;

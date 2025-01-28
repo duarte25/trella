@@ -8,7 +8,6 @@ import { Tarefa, TarefaResponsavel } from '@/api/models/Tarefa';
 import { useState, useEffect } from 'react';
 import { useContext } from 'react';
 import { format } from 'date-fns';
-import { Console } from 'console';
 
 export type StatusColumns = {
   Open: Tarefa[];
@@ -86,14 +85,14 @@ export const useTaskBoard = (id: string) => {
 
   const mutationEditar = useMutation({
     mutationFn: async (taskData: Partial<Tarefa> & { _id: string }) => {
-      const response = await fetchApi<Partial<Tarefa>, TarefaResponse>({
+      const response = await fetchApi<Partial<TarefaResponsavel>, TarefaResponse>({
         route: `/tarefas/${taskData._id}`,
         method: 'PATCH',
         token: token,
         data: {
           titulo: taskData.titulo,
           descricao: taskData.descricao,
-          responsavel: taskData.responsavel,
+          responsavel: taskData.responsavel?._id,
           data_inicial: taskData.data_inicial,
           data_final: taskData.data_final,
         },
@@ -228,12 +227,15 @@ export const useTaskBoard = (id: string) => {
   };
 
   const handleEditTask = (task: Tarefa) => {
-    console.log("OLHA A TASk ", task)
     mutationEditar.mutate({
       _id: task._id,
       titulo: task.titulo,
       descricao: task.descricao,
-      responsavel: task.responsavel._id,
+      responsavel: {
+        _id: task.responsavel._id,
+        nome: task.responsavel.nome,
+        email: task.responsavel.email,
+      },
       data_inicial: format(task.data_inicial, "yyyy-MM-dd"),
       data_final: format(task.data_final, "yyyy-MM-dd"),
     });
@@ -251,6 +253,7 @@ export const useTaskBoard = (id: string) => {
       });
       setColumns(newColumns);
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [data]);
 
   type TaskValues = {

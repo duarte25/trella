@@ -1,12 +1,28 @@
-version: "3.8"
-
 services:
+  trella-front:
+    build:
+      context: ./trella-front
+    container_name: trella-front
+    ports:
+      - "3020:3020"
+    networks:
+      - app-network
+
+  api:
+    build:
+      context: ./api
+    container_name: api
+    ports:
+      - "3022:3022"
+    networks:
+      - app-network
+
   banco-mongo:
     restart: unless-stopped
     container_name: banco-mongo
     image: mongo:6.0.7
     ports:
-      - ${DB_EXPOSE_PORT}:27017
+      - ${DB_EXPOSE_PORT}:27018
     volumes:
       - "${DB_VOLUME:-vol-db}:/data/db"
     environment:
@@ -16,11 +32,14 @@ services:
       - TZ=America/Porto_Velho
       - LANG=${LANG}
     networks:
-      - fslab-network-auth
+      - app-network
 
 volumes:
+  postgres_data:
+    driver: local
   vol-db:
+    driver: local
 
 networks:
-  fslab-network-auth:
+  app-network:
     driver: bridge

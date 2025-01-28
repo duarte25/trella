@@ -80,9 +80,9 @@ export default function ComboboxAPI({
       setOpen(false);
     }
   };
-  const removeOptions = () => {
-    setSelecionado(multipleOption ? [] : undefined);
-  };
+  // const removeOptions = () => {
+  //   setSelecionado(multipleOption ? [] : undefined);
+  // };
   const findOption = (dados: Usuario): boolean => {
     if (multipleOption) {
       return (selecionado as Usuario[]).some((item) => item.id === dados.id);

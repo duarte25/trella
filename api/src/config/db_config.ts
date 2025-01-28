@@ -4,7 +4,10 @@ import * as dotenv from "dotenv";
 // Carrega as variáveis de ambiente
 dotenv.config();
 
-const bancoUrl: string | undefined = "mongodb://root:panelaNotificacaoDB@localhost:27100/panelanotificacaodb?authSource=admin";
+// const bancoUrl: string | undefined = "mongodb://root:panelaNotificacaoDB@localhost:27100/panelanotificacaodb?authSource=admin";
+
+const bancoUrl = "mongodb://root:panelaNotificacaoDB@localhost:27018/panelanotificacaodb?authSource=admin";
+
 
 // Função para conectar ao banco de dados
 async function conectarBanco(): Promise<void> {

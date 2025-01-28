@@ -182,7 +182,7 @@ export const traduzirMensagemZod = (issue: z.IssueData) => {
     case ZodIssueCode.not_finite:
       return "O valor não é finito";
     default:
-      return issue.message ?? `Erro Desconhecido: ${JSON.stringify(issue)}`;
+      return issue ?? `Erro Desconhecido: ${JSON.stringify(issue)}`;
   }
 };
 

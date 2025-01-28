@@ -55,6 +55,7 @@ export default function CriarBoard() {
     // Busca os usuários ao carregar o componente
     useEffect(() => {
         buscarUsuarios();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [token]);
 
     async function cadastrarBoard(data: z.infer<typeof schema>) {

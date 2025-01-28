@@ -61,6 +61,7 @@ export default function FormEditar({ onSubmit, initialValues, open, onOpenChange
   const [response, setResponse] = useState<Usuario[]>([]);
 
   // Função para buscar os usuários da API
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const buscarUsuarios = async () => {
     if (!token) return;
 
@@ -79,7 +80,7 @@ export default function FormEditar({ onSubmit, initialValues, open, onOpenChange
   // Busca os usuários ao carregar o componente
   useEffect(() => {
     buscarUsuarios();
-  }, [token]);
+  }, [buscarUsuarios]);
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
