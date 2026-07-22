@@ -1,0 +1,19 @@
+services:
+  banco-mongo-test:
+    container_name: banco-mongo-test
+    image: mongo:6.0.7
+    ports:
+      - "${DB_EXPOSE_PORT:-27201}:27017"
+    tmpfs:
+      - /data/db
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=${DB_USERNAME}
+      - MONGO_INITDB_ROOT_PASSWORD=${DB_PASSWORD}
+      - MONGO_INITDB_DATABASE=${DB_DATABASE}
+      - TZ=America/Porto_Velho
+    networks:
+      - app-network-test
+
+networks:
+  app-network-test:
+    driver: bridge

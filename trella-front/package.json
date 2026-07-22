@@ -9,6 +9,8 @@
     "lint": "next lint",
     "cypress:open": "env -u ELECTRON_RUN_AS_NODE cypress open",
     "cypress:run": "env -u ELECTRON_RUN_AS_NODE cypress run",
+    "cypress:open:test": "env -u ELECTRON_RUN_AS_NODE CYPRESS_BASE_URL=http://localhost:4000 CYPRESS_API_URL=http://localhost:4020 cypress open",
+    "cypress:run:test": "env -u ELECTRON_RUN_AS_NODE CYPRESS_BASE_URL=http://localhost:4000 CYPRESS_API_URL=http://localhost:4020 cypress run",
     "e2e": "start-server-and-test dev http://localhost:3000 cypress:run"
   },
   "dependencies": {

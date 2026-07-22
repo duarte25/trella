@@ -66,10 +66,10 @@ export default function Appbar() {
 
                 <SidebarMenuItem>
                   <SidebarMenuButton asChild>
-                    <Link href={"/home"}>Home</Link>
+                    <Link href={"/home"} data-cy="nav-home">Home</Link>
                   </SidebarMenuButton>
                   <SidebarMenuButton asChild>
-                    <Link href={"/criar-board"}>Criar Board</Link>
+                    <Link href={"/criar-board"} data-cy="nav-criar-board">Criar Board</Link>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               </SidebarMenu>

@@ -26,8 +26,9 @@ interface ComboboxAPIProps {
   placeholderInputSearch: string;
   placeholderUnselected: string;
   multipleOption?: boolean;
-  selectedField: (selecionado: Usuario) => string; 
-  renderOption: (dados: Usuario) => JSX.Element; 
+  selectedField: (selecionado: Usuario) => string;
+  renderOption: (dados: Usuario) => JSX.Element;
+  "data-cy"?: string;
 }
 
 export default function ComboboxAPI({
@@ -37,6 +38,7 @@ export default function ComboboxAPI({
   placeholderInputSearch,
   placeholderUnselected,
   multipleOption = false,
+  "data-cy": dataCy,
 }: ComboboxAPIProps) {
   const authContext = useContext(AuthContext);
   const token = authContext?.token;
@@ -101,6 +103,7 @@ export default function ComboboxAPI({
           variant="outline"
           role="combobox"
           aria-expanded={open}
+          data-cy={dataCy}
           className="flex w-full p-1 px-3 min-h-9 h-auto justify-between items-center"
         >
           <div className="flex-grow">
@@ -165,6 +168,7 @@ export default function ComboboxAPI({
                   <CommandItem
                     key={dados.id} // Use id as the unique key
                     value={dados.id}
+                    data-cy="combobox-option"
                     onSelect={() =>
                       findOption(dados) ? removeOption(dados) : selectOption(dados)
                     }

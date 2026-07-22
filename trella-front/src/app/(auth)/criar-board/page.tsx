@@ -114,6 +114,7 @@ export default function CriarBoard() {
                                                     type="text"
                                                     id="nome"
                                                     data-test="inputNomeUsuario"
+                                                    data-cy="board-nome-input"
                                                     placeholder="Nome"
                                                     {...field}
                                                 />
@@ -131,6 +132,7 @@ export default function CriarBoard() {
                                             <FormLabel className="text-white" htmlFor="usuarios">Usuarios *</FormLabel>
                                             <FormControl >
                                                 <ComboboxAPI
+                                                    data-cy="board-usuarios-combobox"
                                                     route={"/auth/profile"}
                                                     multipleOption={true}
                                                     placeholderInputSearch={"Busque por nome ou cpf"}
@@ -156,7 +158,7 @@ export default function CriarBoard() {
 
                                 <div className="flex justify-center">
                                     {/* <ButtonLink href={`/home`} size="lg" variant="outline" data-test="button-voltar">Voltar</ButtonLink> */}
-                                    <ButtonLoading className="bg-gray-200 text-black w-2/5" isLoading={form.formState.isSubmitting} data-test="button-editar">Salvar</ButtonLoading>
+                                    <ButtonLoading className="bg-gray-200 text-black w-2/5" isLoading={form.formState.isSubmitting} data-test="button-editar" data-cy="board-submit-button">Salvar</ButtonLoading>
                                 </div>
                             </form>
                         </Form>

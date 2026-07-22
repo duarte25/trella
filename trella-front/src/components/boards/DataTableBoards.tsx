@@ -88,7 +88,7 @@ export default function DataTableBoards({ dados, onUpdate }: DataTableBoardsProp
                 </TooltipProvider>
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
-                    <button className="p-1 rounded hover:bg-gray-200 focus:outline-none">
+                    <button data-cy="board-menu-acoes-trigger" className="p-1 rounded hover:bg-gray-200 focus:outline-none">
                       <MoreHorizontal className="w-4 h-4" />
                     </button>
                   </DropdownMenuTrigger>

@@ -1,0 +1,11 @@
+# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+
+# claude code (config/local do assistente, não faz parte do projeto)
+.claude/
+
+# misc
+.DS_Store
+
+# env files (segredos/config local — nunca commitar; .env.example é o único versionado)
+.env*
+!.env.example
