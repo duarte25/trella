@@ -41,7 +41,7 @@ export default function LoginPage() {
 
             // Exibe a notificação de sucesso
             toast.success("Você foi logado com sucesso.");
-        }   
+        }
     }
 
     return (
@@ -80,7 +80,7 @@ export default function LoginPage() {
                                                 <FormItem>
                                                     <FormLabel htmlFor="email">Email</FormLabel>
                                                     <FormControl>
-                                                        <Input type="email" id="email" {...field} />
+                                                        <Input type="email" id="email" data-cy="email-input" {...field} />
                                                     </FormControl>
                                                     <FormMessage />
                                                 </FormItem>
@@ -94,7 +94,7 @@ export default function LoginPage() {
                                                 <FormItem>
                                                     <FormLabel htmlFor="senha">Senha</FormLabel>
                                                     <FormControl>
-                                                        <Input type="password" id="senha" {...field} />
+                                                        <Input type="password" id="senha" data-cy="senha-input" {...field} />
                                                     </FormControl>
                                                     <FormMessage />
                                                 </FormItem>
@@ -104,7 +104,7 @@ export default function LoginPage() {
                                         <div>
                                             <span className="text-sm">
                                                 Não tem uma conta?{" "}
-                                                <Link className="underline" href="/register">
+                                                <Link className="underline" href="/register" data-cy="register-link">
                                                     Cadastre-se
                                                 </Link>
                                             </span>
@@ -112,7 +112,7 @@ export default function LoginPage() {
                                     </fieldset>
                                 </CardContent>
                                 <CardFooter className="w-full">
-                                    <ButtonLoading type="submit" isLoading={form.formState.isSubmitting} className="w-full">
+                                    <ButtonLoading type="submit" isLoading={form.formState.isSubmitting} className="w-full" data-cy="login-submit-button">
                                         Entrar
                                     </ButtonLoading>
                                 </CardFooter>
