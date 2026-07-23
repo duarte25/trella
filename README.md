@@ -61,12 +61,24 @@ docker exec api npm run seed
 
 ## 🧪 Testes (E2E com Cypress)
 
-Os testes ficam em `trella-front/cypress/e2e` e cobrem, hoje:
+Os testes ficam em `trella-front/cypress/e2e` hoje são **6 arquivos, 29 testes**:
 
 - **Login** (`login.cy.ts`): formulário, credenciais inválidas, navegação pro registro, login com sucesso.
 - **Home** (`home.cy.ts`): acesso autenticado direto (sem passar pela tela de login).
+- **Registro** (`register.cy.ts`): formulário, navegação pro login, validações de nome/CPF/e-mail/senha (tanto do client quanto do servidor, ex: senha fraca e CPF com dígito verificador inválido passam no client mas são barrados pela API), e-mail duplicado, e cadastro com sucesso (loga de verdade com a conta criada).
 - **Criar Board** (`board.cy.ts`): criação com sucesso e validações (sem nome, sem usuários, sem nenhum dos dois).
 - **Lista de Boards** (`boards-list.cy.ts`): listagem, estado vazio, acesso pelo ícone de olho, deletar pelo menu de ações, paginação.
+- **Tarefas** (`tarefa.cy.ts`): criar tarefa (aparece na coluna Open), arrastar entre colunas (Open → Fazendo → Feito → Closed, uma de cada vez, confirmando no banco que o status persistiu), editar título, deletar.
+
+### Comandos customizados (`cypress/support/commands.ts`)
+
+Reaproveite esses em vez de duplicar lógica em specs novos:
+
+- `cy.login(email?, senha?)` — loga direto via API (sem passar pela tela) e cacheia a sessão entre testes.
+- `cy.limparBoardsDoUsuario()` — apaga todos os boards do usuário de teste (limpeza defensiva, ver comentário no arquivo).
+- `cy.criarBoardViaApi(nome)` — cria um board via API, retorna o board criado.
+- `cy.arrastarPara(origemSelector, destinoSelector)` — simula um drag-and-drop do `@hello-pangea/dnd` (não usa o HTML5 nativo).
+- `cy.gerarCpfValido()` — gera um CPF novo com dígito verificador válido de verdade (a API valida isso).
 
 ### Ambiente de teste isolado
 
@@ -78,7 +90,7 @@ Os testes **nunca** rodam contra o banco/API/front que você usa no dia a dia. E
 | API | `:3020` | `:4020` |
 | Mongo | `:27200` (volume persistente) | `:27201` (dados em `tmpfs`, somem ao parar) |
 
-Isso é proposital: os testes criam, editam e deletam dados o tempo todo, então usar o mesmo banco/conta que uma pessoa real usa seria arriscado — um teste poderia apagar algo real por engano.
+Isso é proposital: os testes criam, editam e deletam dados o tempo todo, então usar o mesmo banco/conta que uma pessoa real usa seria arriscado um teste poderia apagar algo real por engano.
 
 ### Rodando os testes de ponta a ponta (automático)
 
@@ -96,7 +108,7 @@ Se você quer abrir a interface do Cypress e ver os testes rodando na tela (ou e
 ./e2e-env.sh up
 ```
 
-Isso sobe o banco de teste, faz o seed, e sobe a API e o front de teste com hot-reload ligado (igual o `npm run dev` normal — pode editar código que atualiza sozinho). Com o ambiente no ar, abra o Cypress:
+Isso sobe o banco de teste, faz o seed, e sobe a API e o front de teste com hot-reload ligado (igual o `npm run dev` normal pode editar código que atualiza sozinho). Com o ambiente no ar, abra o Cypress:
 
 ```
 cd trella-front
