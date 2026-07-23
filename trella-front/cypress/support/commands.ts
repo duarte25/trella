@@ -1,5 +1,33 @@
 /// <reference types="cypress" />
 
+// Gera um CPF com dígitos verificadores válidos de verdade (a API valida
+// isso via `isCPF` da lib validation-br, não só o tamanho de 11 dígitos).
+// Cada chamada gera um CPF novo e aleatório, necessário porque o registro
+// exige CPF único.
+Cypress.Commands.add("gerarCpfValido", () => {
+  const random9 = () => Array.from({ length: 9 }, () => Math.floor(Math.random() * 10));
+  let digits = random9();
+  while (digits.every((d) => d === digits[0])) {
+    digits = random9();
+  }
+
+  const calcDigit = (nums: number[]) => {
+    let sum = 0;
+    let weight = nums.length + 1;
+    for (const n of nums) {
+      sum += n * weight;
+      weight--;
+    }
+    const mod = sum % 11;
+    return mod < 2 ? 0 : 11 - mod;
+  };
+
+  const d1 = calcDigit(digits);
+  const d2 = calcDigit([...digits, d1]);
+
+  return cy.wrap([...digits, d1, d2].join(""));
+});
+
 Cypress.Commands.add("login", (email, senha) => {
   const loginEmail = email || Cypress.env("loginEmail");
   const loginSenha = senha || Cypress.env("loginSenha");

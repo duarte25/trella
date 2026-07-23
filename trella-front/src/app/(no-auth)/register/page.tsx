@@ -92,7 +92,7 @@ export default function RegisterPage() {
                                                 <FormItem>
                                                     <FormLabel htmlFor="nome">Nome</FormLabel>
                                                     <FormControl>
-                                                        <Input type="nome" id="npme" {...field} />
+                                                        <Input data-cy="registro-nome-input" type="nome" id="npme" {...field} />
                                                     </FormControl>
                                                     <FormMessage />
                                                 </FormItem>
@@ -106,7 +106,7 @@ export default function RegisterPage() {
                                                 <FormItem>
                                                     <FormLabel htmlFor="cpf">CPF</FormLabel>
                                                     <FormControl>
-                                                        <Input type="cpf" id="cpf" {...field} />
+                                                        <Input data-cy="registro-cpf-input" type="cpf" id="cpf" {...field} />
                                                     </FormControl>
                                                     <FormMessage />
                                                 </FormItem>
@@ -120,7 +120,7 @@ export default function RegisterPage() {
                                                 <FormItem>
                                                     <FormLabel htmlFor="email">Email</FormLabel>
                                                     <FormControl>
-                                                        <Input type="email" id="email" {...field} />
+                                                        <Input data-cy="registro-email-input" type="email" id="email" {...field} />
                                                     </FormControl>
                                                     <FormMessage />
                                                 </FormItem>
@@ -134,7 +134,7 @@ export default function RegisterPage() {
                                                 <FormItem>
                                                     <FormLabel htmlFor="senha">Senha</FormLabel>
                                                     <FormControl>
-                                                        <Input type="password" id="senha" {...field} />
+                                                        <Input data-cy="registro-senha-input" type="password" id="senha" {...field} />
                                                     </FormControl>
                                                     <FormMessage />
                                                 </FormItem>
@@ -143,7 +143,7 @@ export default function RegisterPage() {
 
                                         <div>
                                             <span className="text-sm">
-                                                <Link className="underline" href="/">
+                                                <Link className="underline" href="/" data-cy="registro-login-link">
                                                     Já tem uma conta?
                                                 </Link>
                                             </span>
@@ -151,7 +151,7 @@ export default function RegisterPage() {
                                     </fieldset>
                                 </CardContent>
                                 <CardFooter className="w-full">
-                                    <ButtonLoading type="submit" isLoading={form.formState.isSubmitting} className="w-full">
+                                    <ButtonLoading data-cy="registro-submit-button" type="submit" isLoading={form.formState.isSubmitting} className="w-full">
                                         Registrar
                                     </ButtonLoading>
                                 </CardFooter>

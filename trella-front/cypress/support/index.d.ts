@@ -5,5 +5,6 @@ declare namespace Cypress {
     limparBoardsDoUsuario(): Chainable<void>;
     criarBoardViaApi(nome: string): Chainable<{ _id: string; nome: string }>;
     arrastarPara(origemSelector: string, destinoSelector: string): Chainable<void>;
+    gerarCpfValido(): Chainable<string>;
   }
 }
