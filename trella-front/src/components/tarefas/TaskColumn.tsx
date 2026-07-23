@@ -17,6 +17,7 @@ export const TaskColumn: React.FC<TaskColumnProps> = ({ columnId, tasks, onEdit,
         <div
           ref={provided.innerRef}
           {...provided.droppableProps}
+          data-cy={`coluna-${columnId}`}
           className="border border-gray-500 rounded-lg"
           style={{
             width: "22%",

@@ -1,5 +1,5 @@
 // Prefixo só pra deixar claro, olhando a tela ou o banco, o que foi criado
-// pelos testes — mas a limpeza abaixo NÃO depende dele (ver comentário no
+// pelos testes mas a limpeza abaixo NÃO depende dele (ver comentário no
 // beforeEach).
 const E2E_PREFIX = "[e2e]";
 
@@ -34,14 +34,12 @@ describe("Lista de Boards", () => {
   beforeEach(() => {
     cy.login();
     // Limpeza defensiva: apaga TODOS os boards do usuário fixo antes de
-    // cada teste — não só os com prefixo "[e2e]". Dois motivos:
+    // cada teste não só os com prefixo "[e2e]". Motivos:
     // 1) o boardSeed.ts sorteia aleatoriamente quem é responsável/membro de
     //    cada board, então o usuário de teste pode "ganhar" boards do seed
-    //    (já vimos isso acontecer: 7 boards seedados foram parar nele);
     // 2) uma rodada anterior interrompida (ex: fechou o Cypress no meio)
     //    pode ter deixado boards de teste órfãos.
-    // Isso só é seguro porque este banco é o de teste, isolado — nunca
-    // faça isso contra um banco que também tem usuários/dados reais.
+    // Isso só é seguro porque este banco é o de teste, isolado.
     limparTodosOsBoardsDoUsuario();
   });
 

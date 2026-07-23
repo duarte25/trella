@@ -40,14 +40,15 @@ export default function FormEditar({ onSubmit, initialValues, open, onOpenChange
   });
 
   useEffect(() => {
-    if (initialValues) {
+    if (open && initialValues) {
       form.reset({
         ...initialValues,
         data_inicial: initialValues.data_inicial ? new Date(initialValues.data_inicial) : new Date(),
         data_final: initialValues.data_final ? new Date(initialValues.data_final) : new Date(),
       });
     }
-  }, [initialValues, form]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open]);
 
   const handleSubmit = async (values: z.infer<typeof schema>) => {
     await onSubmit(values);
@@ -71,7 +72,7 @@ export default function FormEditar({ onSubmit, initialValues, open, onOpenChange
       token: token,
       nextOptions: {},
     });
-    
+
 
     if (!response.error) {
       setResponse(response.data.data); // Atualiza o estado com os usuários buscados
@@ -81,7 +82,7 @@ export default function FormEditar({ onSubmit, initialValues, open, onOpenChange
   // Busca os usuários ao carregar o componente
   useEffect(() => {
     buscarUsuarios();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [token]);
 
   return (
@@ -102,7 +103,7 @@ export default function FormEditar({ onSubmit, initialValues, open, onOpenChange
                 <FormItem>
                   <FormLabel>Título</FormLabel>
                   <FormControl>
-                    <Input placeholder="Título da tarefa" {...field} />
+                    <Input data-cy="tarefa-edit-titulo-input" placeholder="Título da tarefa" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -115,7 +116,7 @@ export default function FormEditar({ onSubmit, initialValues, open, onOpenChange
                 <FormItem>
                   <FormLabel>Descrição</FormLabel>
                   <FormControl>
-                    <Textarea placeholder="Descrição da tarefa" {...field} />
+                    <Textarea data-cy="tarefa-edit-descricao-input" placeholder="Descrição da tarefa" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -129,6 +130,7 @@ export default function FormEditar({ onSubmit, initialValues, open, onOpenChange
                   <FormLabel className="text-white" htmlFor="responsavel">Responsável</FormLabel>
                   <FormControl>
                     <ComboboxAPI
+                      data-cy="tarefa-edit-responsavel-combobox"
                       route={"/auth/profile"}
                       multipleOption={false}
                       placeholderInputSearch={"Busque por nome ou cpf"}
@@ -208,7 +210,7 @@ export default function FormEditar({ onSubmit, initialValues, open, onOpenChange
               )}
             />
             <DialogFooter>
-              <Button type="submit">Salvar</Button>
+              <Button data-cy="tarefa-edit-submit-button" type="submit">Salvar</Button>
             </DialogFooter>
           </form>
         </Form>

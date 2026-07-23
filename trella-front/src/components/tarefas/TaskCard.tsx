@@ -1,8 +1,8 @@
 import { DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenu } from '../ui/dropdown-menu';
+import React, { useMemo, useState } from 'react';
 import { Draggable } from '@hello-pangea/dnd';
 import { MoreHorizontal } from 'lucide-react';
 import { Tarefa } from '@/api/models/Tarefa';
-import React, { useState } from 'react';
 import FormEditar from './FormEditar';
 
 type TaskCardProps = {
@@ -19,13 +19,15 @@ export const TaskCard: React.FC<TaskCardProps> = ({ task, index, onEdit, onDelet
     setIsEditDialogOpen(false);
   };
 
-  // Ajusta o objeto da tarefa para enviar o objeto completo do responsável
-  const initialValues = {
-    ...task,
-    responsavel: task.responsavel._id,
-    data_inicial: new Date(task.data_inicial),
-    data_final: new Date(task.data_final),
-  };
+  const initialValues = useMemo(
+    () => ({
+      ...task,
+      responsavel: task.responsavel._id,
+      data_inicial: new Date(task.data_inicial),
+      data_final: new Date(task.data_final),
+    }),
+    [task],
+  );
 
   function formatDateToMonthYear(date: Date): string {
     const options: Intl.DateTimeFormatOptions = { year: 'numeric', month: 'long' };
@@ -39,6 +41,7 @@ export const TaskCard: React.FC<TaskCardProps> = ({ task, index, onEdit, onDelet
           ref={provided.innerRef}
           {...provided.draggableProps}
           {...provided.dragHandleProps}
+          data-test={`tarefa-${task._id}`}
           className="border border-gray-500 rounded-lg p-2 mx-4 bg-zinc-700 shadow-md"
           style={{
             ...provided.draggableProps.style,
@@ -48,15 +51,15 @@ export const TaskCard: React.FC<TaskCardProps> = ({ task, index, onEdit, onDelet
 
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <button className="p-2 rounded hover:bg-gray-200 focus:outline-none">
+                <button data-cy="tarefa-menu-acoes-trigger" className="p-2 rounded hover:bg-gray-200 focus:outline-none">
                   <MoreHorizontal className="w-5 h-5 text-gray-100" />
                 </button>
               </DropdownMenuTrigger>
               <DropdownMenuContent side="right" align="start">
-                <DropdownMenuItem onClick={() => setIsEditDialogOpen(true)}>
+                <DropdownMenuItem data-cy="tarefa-editar-item" onClick={() => setIsEditDialogOpen(true)}>
                   Editar
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => onDelete(task._id)}>
+                <DropdownMenuItem data-cy="tarefa-deletar-item" onClick={() => onDelete(task._id)}>
                   <span className="cursor-pointer text-red-500">Deletar</span>
                 </DropdownMenuItem>
               </DropdownMenuContent>

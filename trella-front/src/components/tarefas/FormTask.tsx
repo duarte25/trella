@@ -85,7 +85,7 @@ export default function FormTask({ onSubmit, initialValues }: FormTaskProps) {
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>
-        <Button className="w-1/12">{"+ Nova Tarefa"}</Button>
+        <Button data-cy="nova-tarefa-button" className="w-1/12">{"+ Nova Tarefa"}</Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
@@ -103,7 +103,7 @@ export default function FormTask({ onSubmit, initialValues }: FormTaskProps) {
                 <FormItem>
                   <FormLabel>Título</FormLabel>
                   <FormControl>
-                    <Input placeholder="Título da tarefa" {...field} />
+                    <Input data-cy="tarefa-titulo-input" placeholder="Título da tarefa" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -116,7 +116,7 @@ export default function FormTask({ onSubmit, initialValues }: FormTaskProps) {
                 <FormItem>
                   <FormLabel>Descrição</FormLabel>
                   <FormControl>
-                    <Textarea placeholder="Descrição da tarefa" {...field} />
+                    <Textarea data-cy="tarefa-descricao-input" placeholder="Descrição da tarefa" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -131,6 +131,7 @@ export default function FormTask({ onSubmit, initialValues }: FormTaskProps) {
                   <FormLabel className="text-white" htmlFor="responsavel">Responsável</FormLabel>
                   <FormControl>
                     <ComboboxAPI
+                      data-cy="tarefa-responsavel-combobox"
                       route={"/auth/profile"}
                       multipleOption={false}
                       placeholderInputSearch={"Busque por nome ou cpf"}
@@ -211,7 +212,7 @@ export default function FormTask({ onSubmit, initialValues }: FormTaskProps) {
               )}
             />
             <DialogFooter>
-              <Button type="submit">Salvar</Button>
+              <Button data-cy="tarefa-submit-button" type="submit">Salvar</Button>
             </DialogFooter>
           </form>
         </Form>
